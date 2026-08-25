@@ -1,0 +1,38 @@
+# Base Kubernetes manifest for trackforge-api. Environment-specific overlays
+# (infra/k8s/overlays/{dev,staging,production}) patch replicas, resources,
+# and env vars via Kustomize, per Technical Architecture Document §6.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trackforge-api
+  labels:
+    app: trackforge-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: trackforge-api
+  template:
+    metadata:
+      labels:
+        app: trackforge-api
+    spec:
+      containers:
+        - name: trackforge-api
+          image: trackforge-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trackforge-api
+spec:
+  selector:
+    app: trackforge-api
+  ports:
+    - port: 80
+      targetPort: 8080

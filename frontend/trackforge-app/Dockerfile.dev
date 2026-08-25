@@ -1,0 +1,9 @@
+# Dev-only image used by docker-compose for local development (hot reload via Vite).
+# Production builds use the multi-stage Dockerfile (static build served by nginx).
+FROM node:20-alpine
+WORKDIR /app
+COPY package.json ./
+RUN npm install
+COPY . .
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host"]

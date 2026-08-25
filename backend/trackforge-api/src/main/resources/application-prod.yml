@@ -1,0 +1,11 @@
+spring:
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    io.trackforge: INFO
+
+# Secrets (DB password, JWT signing keys, etc.) are resolved at runtime from
+# AWS Secrets Manager / HashiCorp Vault — never baked into images or committed
+# to VCS. See Security & Access Document §4.
