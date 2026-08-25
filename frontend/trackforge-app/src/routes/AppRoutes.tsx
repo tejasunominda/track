@@ -5,6 +5,7 @@ import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { IssueDetailPage } from "@/features/issues/pages/IssueDetailPage";
 import { IssuesPage } from "@/features/issues/pages/IssuesPage";
 import { ProjectsPage } from "@/features/projects/pages/ProjectsPage";
+import { ReportsPage } from "@/features/reports/pages/ReportsPage";
 
 /**
  * Top-level route tree, nested to match the project/board/issue hierarchy
@@ -21,6 +22,7 @@ export function AppRoutes() {
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="projects/:projectId/board" element={<BoardPage />} />
         <Route path="projects/:projectId/issues" element={<IssuesPage />} />
+        <Route path="projects/:projectId/reports" element={<ReportsPage />} />
         <Route path="issues/:issueId" element={<IssueDetailPage />} />
       </Route>
     </Routes>
