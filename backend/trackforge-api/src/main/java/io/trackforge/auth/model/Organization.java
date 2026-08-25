@@ -36,7 +36,7 @@ public class Organization {
     private String subdomain;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 32)
+    @Column(name = "subscription_tier", nullable = false, length = 32)
     private SubscriptionTier tier = SubscriptionTier.FREE;
 
     @Column(name = "created_at", nullable = false, updatable = false)
