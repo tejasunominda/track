@@ -14,6 +14,7 @@ import io.trackforge.issue.repository.IssueRepository;
 import io.trackforge.issue.repository.IssueStatusRepository;
 import io.trackforge.issue.repository.IssueTypeRepository;
 import io.trackforge.project.repository.ProjectRepository;
+import io.trackforge.webhook.service.WebhookDispatcher;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,6 +33,7 @@ public class IssueService {
     private final WorkflowTransitionEngine workflowEngine;
     private final IssueRankService issueRankService;
     private final AuditLogPublisher auditLogPublisher;
+    private final WebhookDispatcher webhookDispatcher;
 
     public IssueService(
             IssueRepository issueRepository,
@@ -40,7 +42,8 @@ public class IssueService {
             ProjectRepository projectRepository,
             WorkflowTransitionEngine workflowEngine,
             IssueRankService issueRankService,
-            AuditLogPublisher auditLogPublisher) {
+            AuditLogPublisher auditLogPublisher,
+            WebhookDispatcher webhookDispatcher) {
         this.issueRepository = issueRepository;
         this.issueTypeRepository = issueTypeRepository;
         this.issueStatusRepository = issueStatusRepository;
@@ -48,6 +51,7 @@ public class IssueService {
         this.workflowEngine = workflowEngine;
         this.issueRankService = issueRankService;
         this.auditLogPublisher = auditLogPublisher;
+        this.webhookDispatcher = webhookDispatcher;
     }
 
     @Transactional(readOnly = true)
@@ -88,8 +92,10 @@ public class IssueService {
         if (request.parentId() != null) issue.setParentId(request.parentId());
 
         Issue saved = issueRepository.save(issue);
-        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "CREATE", "Issue", saved.getId(), null, toSummary(saved));
-        return toSummary(saved);
+        IssueSummaryResponse created = toSummary(saved);
+        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "CREATE", "Issue", saved.getId(), null, created);
+        webhookDispatcher.dispatch("issue.created", "Issue", saved.getId(), created);
+        return created;
     }
 
     @Transactional
@@ -115,7 +121,10 @@ public class IssueService {
             }
         }
 
-        return toSummary(issueRepository.save(issue));
+        Issue updated = issueRepository.save(issue);
+        IssueSummaryResponse response = toSummary(updated);
+        webhookDispatcher.dispatch("issue.updated", "Issue", updated.getId(), response);
+        return response;
     }
 
     private String resolveRankForUpdate(Issue issue, UpdateIssueRequest request) {

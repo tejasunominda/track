@@ -48,11 +48,13 @@ This document tracks the gaps between the current implementation and a productio
 **Goal:** A usable React app for daily work.
 
 - [ ] Signup / login / tenant switcher
-- [ ] Project list and settings UI
-- [ ] Issue detail view with comments, attachments, history
+- [x] Project list and settings UI
+- [x] Issue detail view with comments, attachments
+- [x] Issue list page
 - [ ] Issue creation modal with type/priority/assignee
-- [ ] Board and backlog pages
-- [ ] Sprint planning and reports pages
+- [x] Board page
+- [ ] Backlog and sprint planning pages
+- [ ] Reports pages
 - [ ] Notification center
 - [ ] OpenAPI-generated TypeScript client (F10-02)
 

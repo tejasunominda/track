@@ -8,6 +8,7 @@ import io.trackforge.issue.model.Issue;
 import io.trackforge.issue.model.IssueComment;
 import io.trackforge.issue.repository.IssueCommentRepository;
 import io.trackforge.issue.repository.IssueRepository;
+import io.trackforge.webhook.service.WebhookDispatcher;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,11 +24,13 @@ public class IssueCommentService {
     private final IssueCommentRepository commentRepository;
     private final IssueRepository issueRepository;
     private final UserRepository userRepository;
+    private final WebhookDispatcher webhookDispatcher;
 
-    public IssueCommentService(IssueCommentRepository commentRepository, IssueRepository issueRepository, UserRepository userRepository) {
+    public IssueCommentService(IssueCommentRepository commentRepository, IssueRepository issueRepository, UserRepository userRepository, WebhookDispatcher webhookDispatcher) {
         this.commentRepository = commentRepository;
         this.issueRepository = issueRepository;
         this.userRepository = userRepository;
+        this.webhookDispatcher = webhookDispatcher;
     }
 
     @Transactional(readOnly = true)
@@ -52,8 +55,10 @@ public class IssueCommentService {
                 .orElseThrow(() -> new NotFoundException("ISSUE_NOT_FOUND", "Issue not found."));
         IssueComment comment = new IssueComment(principal.tenantId(), issue.getId(), principal.userId(), body);
         IssueComment saved = commentRepository.save(comment);
-        return new IssueCommentDto(saved.getId(), saved.getIssueId(), saved.getAuthorId(),
+        IssueCommentDto dto = new IssueCommentDto(saved.getId(), saved.getIssueId(), saved.getAuthorId(),
                 principal.email(), saved.getBody(), saved.getCreatedAt(), saved.getUpdatedAt());
+        webhookDispatcher.dispatch("comment.created", "IssueComment", saved.getId(), dto);
+        return dto;
     }
 
     @Transactional

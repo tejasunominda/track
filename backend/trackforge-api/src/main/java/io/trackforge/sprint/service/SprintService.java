@@ -28,14 +28,17 @@ public class SprintService {
     private final IssueRepository issueRepository;
     private final IssueStatusRepository issueStatusRepository;
     private final AuditLogPublisher auditLogPublisher;
+    private final io.trackforge.webhook.service.WebhookDispatcher webhookDispatcher;
 
     public SprintService(SprintRepository sprintRepository, ProjectRepository projectRepository, IssueRepository issueRepository,
-                         IssueStatusRepository issueStatusRepository, AuditLogPublisher auditLogPublisher) {
+                         IssueStatusRepository issueStatusRepository, AuditLogPublisher auditLogPublisher,
+                         io.trackforge.webhook.service.WebhookDispatcher webhookDispatcher) {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.issueRepository = issueRepository;
         this.issueStatusRepository = issueStatusRepository;
         this.auditLogPublisher = auditLogPublisher;
+        this.webhookDispatcher = webhookDispatcher;
     }
 
     @Transactional
@@ -77,8 +80,10 @@ public class SprintService {
         Sprint before = copy(sprint);
         sprint.setStatus(SprintStatus.ACTIVE);
         Sprint saved = sprintRepository.save(sprint);
-        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "START", "Sprint", saved.getId(), toResponse(before), toResponse(saved));
-        return toResponse(saved);
+        SprintResponse response = toResponse(saved);
+        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "START", "Sprint", saved.getId(), toResponse(before), response);
+        webhookDispatcher.dispatch("sprint.started", "Sprint", saved.getId(), response);
+        return response;
     }
 
     @Transactional
@@ -102,8 +107,10 @@ public class SprintService {
         Sprint before = copy(sprint);
         sprint.setStatus(SprintStatus.COMPLETED);
         Sprint saved = sprintRepository.save(sprint);
-        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "COMPLETE", "Sprint", saved.getId(), toResponse(before), toResponse(saved));
-        return toResponse(saved);
+        SprintResponse response = toResponse(saved);
+        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "COMPLETE", "Sprint", saved.getId(), toResponse(before), response);
+        webhookDispatcher.dispatch("sprint.completed", "Sprint", saved.getId(), response);
+        return response;
     }
 
     private java.util.Optional<UUID> getStatusIdByName(String name) {
