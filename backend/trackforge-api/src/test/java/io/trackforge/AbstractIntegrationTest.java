@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
  * without Docker. A Postgres-specific RLS test can be added later and
  * gated behind an active profile.
  */
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public abstract class AbstractIntegrationTest {
 }
