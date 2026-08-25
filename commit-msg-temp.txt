@@ -1,9 +1,10 @@
-Add read-only board state API (Epic 6)
+Add Sprint CRUD and lifecycle API (Epic 7)
 
-Feature Ticket [F6-02]
-- GET /api/v1/projects/{projectId}/board returns columns mapped to
-  workflow statuses with issues grouped by status.
-- BoardStateResponse DTO with columns and issue cards.
+Feature Tickets [F7-01]..[F7-03]
+- Sprint entity, repository, DTOs, service, controller.
+- Migrations V7 (sprints) and V7b (issue.sprint_id).
+- POST/GET /api/v1/sprints, PUT /sprints/{id}/start and /complete.
+- Incomplete-issues rollback on sprint complete (clear sprint_id).
 
 Generated with [Devin](https://devin.ai)
 

@@ -38,6 +38,9 @@ public class Issue {
     @Column(name = "parent_id")
     private UUID parentId;
 
+    @Column(name = "sprint_id")
+    private UUID sprintId;
+
     @Column(nullable = false)
     private String summary;
 
