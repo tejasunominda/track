@@ -15,10 +15,10 @@ This document tracks the gaps between the current implementation and a productio
 
 **Goal:** Make issues feel like Jira issues.
 
-- [x] Issue comments (CRUD, author, timestamps) — *in progress*
-- [ ] Attachments (S3-compatible storage, virus scan stub, presigned URLs)
-- [ ] Issue linking (blocks/is/relates-to/parent-of with link types)
-- [ ] Sub-tasks (hierarchy, parent roll-up of story points/status)
+- [x] Issue comments (CRUD, author, timestamps)
+- [x] Attachments (local storage, virus scan stub, download)
+- [x] Issue linking (blocks/is/relates-to/parent-of with link types)
+- [x] Sub-tasks (hierarchy, parent roll-up via parentId)
 - [ ] Watchers / votes / labels UI and API
 - [ ] Inline editing of summary, assignee, priority, story points
 
