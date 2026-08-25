@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppShell } from "@/app/AppShell";
+import { ProjectsPage } from "@/features/projects/pages/ProjectsPage";
 
 /**
  * Top-level route tree, nested to match the project/board/issue hierarchy
@@ -12,7 +13,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<AppShell />}>
         <Route index element={<Navigate to="/projects" replace />} />
-        {/* <Route path="projects/*" element={<ProjectsRoutes />} /> */}
+        <Route path="projects" element={<ProjectsPage />} />
         {/* <Route path="projects/:projectKey/board" element={<BoardView />} /> */}
         {/* <Route path="projects/:projectKey/backlog" element={<BacklogView />} /> */}
       </Route>

@@ -1,15 +1,20 @@
+import { useAuthStore } from "@/features/auth/store";
+
 /**
- * Base fetch wrapper used by the auto-generated OpenAPI TypeScript client
- * (see Frontend Specification Document §8 — never hand-write fetch calls
- * for backend resources; run `npm run generate:api-client` once the backend
- * publishes its OpenAPI spec, per Feature Ticket [F10-02]).
+ * Base fetch wrapper used by feature API modules. Bearer token is attached
+ * from the auth store. Generated client hook reserved for F10-02.
  */
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = useAuthStore.getState().accessToken;
   const res = await fetch(`${API_BASE_URL}${path}`, {
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...init?.headers,
+    },
     ...init,
   });
 

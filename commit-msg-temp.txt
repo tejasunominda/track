@@ -1,0 +1,14 @@
+Implement workflow engine and core issue CRUD (Epics 4-5)
+
+Feature Tickets: F4-01..F4-06, F5-01, F5-10
+- Issue types, issue statuses, workflow, workflow transitions/schemes
+  entities, repositories, and Flyway migrations (V5, V6).
+- Default workflow scheme creation with Todo -> In Progress -> Done.
+- WorkflowTransitionEngine validates issue status transitions.
+- Issue CRUD API: POST/GET/PUT /api/v1/issues.
+- Auth signup now seeds default issue types and statuses per tenant.
+- Frontend: auth store, login form, project list page wired to API.
+
+Generated with [Devin](https://devin.ai)
+
+Co-Authored-By: Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>

@@ -16,6 +16,11 @@ import io.trackforge.common.exception.ConflictException;
 import io.trackforge.common.exception.UnauthorizedException;
 import io.trackforge.common.security.JwtService;
 import io.trackforge.common.tenant.TenantContext;
+import io.trackforge.issue.model.IssueStatus;
+import io.trackforge.issue.model.IssueType;
+import io.trackforge.issue.model.StatusCategory;
+import io.trackforge.issue.repository.IssueStatusRepository;
+import io.trackforge.issue.repository.IssueTypeRepository;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
@@ -42,6 +47,8 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final IssueTypeRepository issueTypeRepository;
+    private final IssueStatusRepository issueStatusRepository;
 
     public AuthService(
             OrganizationRepository organizationRepository,
@@ -49,13 +56,17 @@ public class AuthService {
             MembershipRepository membershipRepository,
             RefreshTokenRepository refreshTokenRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService) {
+            JwtService jwtService,
+            IssueTypeRepository issueTypeRepository,
+            IssueStatusRepository issueStatusRepository) {
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.issueTypeRepository = issueTypeRepository;
+        this.issueStatusRepository = issueStatusRepository;
     }
 
     /**
@@ -80,11 +91,22 @@ public class AuthService {
                 passwordEncoder.encode(request.password()),
                 request.displayName()));
 
-        // Membership is RLS-protected, so the insert must happen with the
-        // freshly created org set as the tenant context.
+        // All tenant-scoped seeds must happen under the new tenant context
+        // for RLS to allow the insert.
         TenantContext.set(organization.getId());
         try {
             membershipRepository.save(new Membership(organization.getId(), user.getId(), OrgRole.ORG_ADMIN));
+
+            issueTypeRepository.save(new IssueType(organization.getId(), "Epic", 0));
+            issueTypeRepository.save(new IssueType(organization.getId(), "Story", 1));
+            issueTypeRepository.save(new IssueType(organization.getId(), "Task", 1));
+            issueTypeRepository.save(new IssueType(organization.getId(), "Bug", 1));
+            issueTypeRepository.save(new IssueType(organization.getId(), "Sub-task", 2));
+
+            issueStatusRepository.save(new IssueStatus(organization.getId(), "To Do", StatusCategory.TODO));
+            issueStatusRepository.save(new IssueStatus(organization.getId(), "In Progress", StatusCategory.IN_PROGRESS));
+            issueStatusRepository.save(new IssueStatus(organization.getId(), "In Review", StatusCategory.IN_PROGRESS));
+            issueStatusRepository.save(new IssueStatus(organization.getId(), "Done", StatusCategory.DONE));
         } finally {
             TenantContext.clear();
         }
