@@ -1,9 +1,12 @@
 package io.trackforge.sprint.service;
 
+import io.trackforge.admin.audit.AuditLogPublisher;
 import io.trackforge.common.exception.ConflictException;
 import io.trackforge.common.exception.NotFoundException;
 import io.trackforge.common.security.TrackForgePrincipal;
+import io.trackforge.issue.model.IssueStatus;
 import io.trackforge.issue.repository.IssueRepository;
+import io.trackforge.issue.repository.IssueStatusRepository;
 import io.trackforge.project.repository.ProjectRepository;
 import io.trackforge.sprint.dto.CreateSprintRequest;
 import io.trackforge.sprint.dto.SprintResponse;
@@ -23,11 +26,16 @@ public class SprintService {
     private final SprintRepository sprintRepository;
     private final ProjectRepository projectRepository;
     private final IssueRepository issueRepository;
+    private final IssueStatusRepository issueStatusRepository;
+    private final AuditLogPublisher auditLogPublisher;
 
-    public SprintService(SprintRepository sprintRepository, ProjectRepository projectRepository, IssueRepository issueRepository) {
+    public SprintService(SprintRepository sprintRepository, ProjectRepository projectRepository, IssueRepository issueRepository,
+                         IssueStatusRepository issueStatusRepository, AuditLogPublisher auditLogPublisher) {
         this.sprintRepository = sprintRepository;
         this.projectRepository = projectRepository;
         this.issueRepository = issueRepository;
+        this.issueStatusRepository = issueStatusRepository;
+        this.auditLogPublisher = auditLogPublisher;
     }
 
     @Transactional
@@ -42,7 +50,9 @@ public class SprintService {
         sprint.setStartDate(request.startDate());
         sprint.setEndDate(request.endDate());
 
-        return toResponse(sprintRepository.save(sprint));
+        Sprint saved = sprintRepository.save(sprint);
+        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "CREATE", "Sprint", saved.getId(), null, toResponse(saved));
+        return toResponse(saved);
     }
 
     @Transactional(readOnly = true)
@@ -57,36 +67,58 @@ public class SprintService {
 
     @Transactional
     public SprintResponse startSprint(UUID sprintId) {
+        TrackForgePrincipal principal = currentPrincipal();
         Sprint sprint = sprintRepository.findById(sprintId)
                 .orElseThrow(() -> new NotFoundException("SPRINT_NOT_FOUND", "Sprint not found."));
         sprintRepository.findByProjectIdAndStatus(sprint.getProjectId(), SprintStatus.ACTIVE)
                 .ifPresent(active -> {
                     throw new ConflictException("ALREADY_ACTIVE_SPRINT", "Another sprint is already active for this project.");
                 });
+        Sprint before = copy(sprint);
         sprint.setStatus(SprintStatus.ACTIVE);
-        return toResponse(sprintRepository.save(sprint));
+        Sprint saved = sprintRepository.save(sprint);
+        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "START", "Sprint", saved.getId(), toResponse(before), toResponse(saved));
+        return toResponse(saved);
     }
 
     @Transactional
     public SprintResponse completeSprint(UUID sprintId) {
+        TrackForgePrincipal principal = currentPrincipal();
         Sprint sprint = sprintRepository.findById(sprintId)
                 .orElseThrow(() -> new NotFoundException("SPRINT_NOT_FOUND", "Sprint not found."));
         if (sprint.getStatus() != SprintStatus.ACTIVE) {
             throw new ConflictException("SPRINT_NOT_ACTIVE", "Sprint is not active.");
         }
         // Incomplete issues roll back to backlog (clear sprint_id, keep status).
-        issueRepository.findByProjectIdAndStatusIdIn(sprint.getProjectId(),
-                        List.of(getStatusIdByName("In Progress").orElse(null), getStatusIdByName("To Do").orElse(null)))
-                .stream()
-                .filter(i -> i.getSprintId() != null && i.getSprintId().equals(sprintId))
-                .forEach(i -> i.setSprintId(null));
+        List<UUID> openStatusIds = List.of(
+                getStatusIdByName("In Progress").orElse(null),
+                getStatusIdByName("To Do").orElse(null))
+                .stream().filter(java.util.Objects::nonNull).toList();
+        if (!openStatusIds.isEmpty()) {
+            issueRepository.findByProjectIdAndStatusIdIn(sprint.getProjectId(), openStatusIds).stream()
+                    .filter(i -> i.getSprintId() != null && i.getSprintId().equals(sprintId))
+                    .forEach(i -> i.setSprintId(null));
+        }
+        Sprint before = copy(sprint);
         sprint.setStatus(SprintStatus.COMPLETED);
-        return toResponse(sprintRepository.save(sprint));
+        Sprint saved = sprintRepository.save(sprint);
+        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "COMPLETE", "Sprint", saved.getId(), toResponse(before), toResponse(saved));
+        return toResponse(saved);
     }
 
-    // Stub: in a real implementation this would require the IssueStatus repository.
     private java.util.Optional<UUID> getStatusIdByName(String name) {
-        return java.util.Optional.empty();
+        return issueStatusRepository.findByNameIgnoreCase(name).map(IssueStatus::getId);
+    }
+
+    private Sprint copy(Sprint src) {
+        Sprint c = new Sprint(src.getTenantId(), src.getProjectId(), src.getName());
+        c.setId(src.getId());
+        c.setGoal(src.getGoal());
+        c.setStatus(src.getStatus());
+        c.setStartDate(src.getStartDate());
+        c.setEndDate(src.getEndDate());
+        c.setCreatedAt(src.getCreatedAt());
+        return c;
     }
 
     private SprintResponse toResponse(Sprint sprint) {

@@ -1,5 +1,6 @@
 package io.trackforge.project.service;
 
+import io.trackforge.admin.audit.AuditLogPublisher;
 import io.trackforge.common.security.TrackForgePrincipal;
 import io.trackforge.common.tenant.TenantContext;
 import io.trackforge.project.dto.CreateProjectRequest;
@@ -23,10 +24,12 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectMembershipRepository projectMembershipRepository;
+    private final AuditLogPublisher auditLogPublisher;
 
-    public ProjectService(ProjectRepository projectRepository, ProjectMembershipRepository projectMembershipRepository) {
+    public ProjectService(ProjectRepository projectRepository, ProjectMembershipRepository projectMembershipRepository, AuditLogPublisher auditLogPublisher) {
         this.projectRepository = projectRepository;
         this.projectMembershipRepository = projectMembershipRepository;
+        this.auditLogPublisher = auditLogPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -59,6 +62,7 @@ public class ProjectService {
         // Creator becomes the first ProjectAdmin automatically.
         projectMembershipRepository.save(new ProjectMembership(
                 principal.tenantId(), saved.getId(), principal.userId(), "ProjectAdmin"));
+        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "CREATE", "Project", saved.getId(), null, saved);
         return toSummary(saved);
     }
 

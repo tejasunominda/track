@@ -1,5 +1,6 @@
 package io.trackforge.issue.service;
 
+import io.trackforge.admin.audit.AuditLogPublisher;
 import io.trackforge.common.exception.NotFoundException;
 import io.trackforge.common.security.TrackForgePrincipal;
 import io.trackforge.issue.dto.CreateIssueRequest;
@@ -28,18 +29,21 @@ public class IssueService {
     private final IssueStatusRepository issueStatusRepository;
     private final ProjectRepository projectRepository;
     private final WorkflowTransitionEngine workflowEngine;
+    private final AuditLogPublisher auditLogPublisher;
 
     public IssueService(
             IssueRepository issueRepository,
             IssueTypeRepository issueTypeRepository,
             IssueStatusRepository issueStatusRepository,
             ProjectRepository projectRepository,
-            WorkflowTransitionEngine workflowEngine) {
+            WorkflowTransitionEngine workflowEngine,
+            AuditLogPublisher auditLogPublisher) {
         this.issueRepository = issueRepository;
         this.issueTypeRepository = issueTypeRepository;
         this.issueStatusRepository = issueStatusRepository;
         this.projectRepository = projectRepository;
         this.workflowEngine = workflowEngine;
+        this.auditLogPublisher = auditLogPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -78,7 +82,9 @@ public class IssueService {
         if (request.priority() != null) issue.setPriority(request.priority());
         if (request.storyPoints() != null) issue.setStoryPoints(request.storyPoints());
 
-        return toSummary(issueRepository.save(issue));
+        Issue saved = issueRepository.save(issue);
+        auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "CREATE", "Issue", saved.getId(), null, toSummary(saved));
+        return toSummary(saved);
     }
 
     @Transactional
