@@ -4,6 +4,9 @@ dist-ssr
 .vite
 coverage
 *.local
+*.tsbuildinfo
+/vite.config.js
+/vite.config.d.ts
 .env
 .env.*
 !.env.example
