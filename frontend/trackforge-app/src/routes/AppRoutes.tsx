@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppShell } from "@/app/AppShell";
 import { BoardPage } from "@/features/board/pages/BoardPage";
+import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { IssueDetailPage } from "@/features/issues/pages/IssueDetailPage";
 import { IssuesPage } from "@/features/issues/pages/IssuesPage";
 import { ProjectsPage } from "@/features/projects/pages/ProjectsPage";
@@ -14,6 +15,7 @@ import { ProjectsPage } from "@/features/projects/pages/ProjectsPage";
 export function AppRoutes() {
   return (
     <Routes>
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<AppShell />}>
         <Route index element={<Navigate to="/projects" replace />} />
         <Route path="projects" element={<ProjectsPage />} />
