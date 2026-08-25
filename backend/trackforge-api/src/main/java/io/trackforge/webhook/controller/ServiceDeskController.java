@@ -1,20 +1,33 @@
 package io.trackforge.webhook.controller;
 
+import io.trackforge.issue.dto.IssueSummaryResponse;
+import io.trackforge.webhook.dto.ServiceDeskRequest;
+import io.trackforge.webhook.service.ServiceDeskService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Customer portal / Service Desk stub (Epic 16). Phase 3.
+ * Customer portal / Service Desk (Epic 16). Creates support tickets as issues.
  */
 @RestController
 @RequestMapping("/api/v1/service-desk")
 public class ServiceDeskController {
 
-    @GetMapping
-    public ResponseEntity<String> portal() {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Service desk customer portal — Phase 3.");
+    private final ServiceDeskService serviceDeskService;
+
+    public ServiceDeskController(ServiceDeskService serviceDeskService) {
+        this.serviceDeskService = serviceDeskService;
+    }
+
+    @PostMapping("/tickets")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<IssueSummaryResponse> createTicket(@Valid @RequestBody ServiceDeskRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(serviceDeskService.createTicket(request));
     }
 }

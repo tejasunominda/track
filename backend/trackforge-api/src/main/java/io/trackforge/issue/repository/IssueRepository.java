@@ -10,4 +10,6 @@ public interface IssueRepository extends JpaRepository<Issue, UUID> {
     List<Issue> findByProjectIdOrderByRankAsc(UUID projectId);
 
     List<Issue> findByProjectIdAndStatusIdIn(UUID projectId, List<UUID> statusIds);
+
+    List<Issue> findByIssueTypeId(UUID issueTypeId);
 }
