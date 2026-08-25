@@ -26,9 +26,9 @@ This document tracks the gaps between the current implementation and a productio
 
 **Goal:** A usable Scrum/Kanban board and sprint workflow.
 
-- [ ] Drag-and-drop board with `@dnd-kit` (frontend)
-- [ ] WebSocket/STOMP for live card moves
-- [ ] Issue rank / LexoRank ordering
+- [x] Drag-and-drop board with `@dnd-kit` (frontend)
+- [x] WebSocket/STOMP for live card moves
+- [x] Issue rank / LexoRank ordering
 - [ ] Backlog view and sprint planning drag-and-drop
 - [ ] Sprint board with swimlanes and WIP limits
 - [ ] Active-sprint auto-start / complete with real incomplete-issues logic
@@ -38,8 +38,8 @@ This document tracks the gaps between the current implementation and a productio
 **Goal:** Jira-equivalent search and query language.
 
 - [ ] Elasticsearch/OpenSearch issue indexing
-- [ ] TQL parser (ANTLR or hand-rolled) for `project = ENG AND status != Done`
-- [ ] TQL autocomplete API
+- [x] TQL parser for `project = ENG AND status != Done`
+- [x] TQL autocomplete API
 - [ ] Saved filters / search subscriptions
 - [ ] Global search UI with faceting
 

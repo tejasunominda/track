@@ -1,8 +1,9 @@
 package io.trackforge.search.controller;
 
+import io.trackforge.issue.dto.IssueSummaryResponse;
 import io.trackforge.search.dto.SearchResult;
 import io.trackforge.search.service.TqlSearchService;
-import org.springframework.http.HttpStatus;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,13 @@ public class TqlSearchController {
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<SearchResult> tqlSearch(@RequestParam String q) {
-        // Stub: Phase 2 (Elasticsearch + TQL parser). Returns 501 for now.
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
+        List<IssueSummaryResponse> results = tqlSearchService.search(q);
+        return ResponseEntity.ok(new SearchResult(null, results));
+    }
+
+    @GetMapping("/fields")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<String>> fields() {
+        return ResponseEntity.ok(tqlSearchService.autocompleteFields());
     }
 }
