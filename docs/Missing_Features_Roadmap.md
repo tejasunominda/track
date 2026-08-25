@@ -37,7 +37,8 @@ This document tracks the gaps between the current implementation and a productio
 
 **Goal:** Jira-equivalent search and query language.
 
-- [ ] Elasticsearch/OpenSearch issue indexing
+- [x] Search client abstraction and issue indexer
+- [ ] OpenSearch/Elasticsearch transport with real cluster
 - [x] TQL parser for `project = ENG AND status != Done`
 - [x] TQL autocomplete API
 - [ ] Saved filters / search subscriptions
