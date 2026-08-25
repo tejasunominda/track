@@ -1,6 +1,7 @@
 package io.trackforge.issue.service;
 
 import io.trackforge.admin.audit.AuditLogPublisher;
+import io.trackforge.board.service.IssueRankService;
 import io.trackforge.common.exception.NotFoundException;
 import io.trackforge.common.security.TrackForgePrincipal;
 import io.trackforge.issue.dto.CreateIssueRequest;
@@ -29,6 +30,7 @@ public class IssueService {
     private final IssueStatusRepository issueStatusRepository;
     private final ProjectRepository projectRepository;
     private final WorkflowTransitionEngine workflowEngine;
+    private final IssueRankService issueRankService;
     private final AuditLogPublisher auditLogPublisher;
 
     public IssueService(
@@ -37,12 +39,14 @@ public class IssueService {
             IssueStatusRepository issueStatusRepository,
             ProjectRepository projectRepository,
             WorkflowTransitionEngine workflowEngine,
+            IssueRankService issueRankService,
             AuditLogPublisher auditLogPublisher) {
         this.issueRepository = issueRepository;
         this.issueTypeRepository = issueTypeRepository;
         this.issueStatusRepository = issueStatusRepository;
         this.projectRepository = projectRepository;
         this.workflowEngine = workflowEngine;
+        this.issueRankService = issueRankService;
         this.auditLogPublisher = auditLogPublisher;
     }
 
@@ -104,7 +108,41 @@ public class IssueService {
             issue.setStatusId(request.statusId());
         }
 
+        if (request.afterIssueId() != null || request.statusId() != null) {
+            String newRank = resolveRankForUpdate(issue, request);
+            if (newRank != null) {
+                issue.setRank(newRank);
+            }
+        }
+
         return toSummary(issueRepository.save(issue));
+    }
+
+    private String resolveRankForUpdate(Issue issue, UpdateIssueRequest request) {
+        UUID newStatus = request.statusId() != null ? request.statusId() : issue.getStatusId();
+        if (request.afterIssueId() == null) {
+            return issueRankService.rankAtEnd(issue.getProjectId());
+        }
+        List<Issue> afterIssue = issueRepository.findAllById(List.of(request.afterIssueId()));
+        if (afterIssue.isEmpty()) {
+            return issueRankService.rankAtEnd(issue.getProjectId());
+        }
+        Issue after = afterIssue.get(0);
+        List<Issue> nextIssues = issueRepository.findByProjectIdOrderByRankAsc(issue.getProjectId()).stream()
+                .filter(i -> i.getStatusId().equals(newStatus))
+                .filter(i -> i.getRank() != null)
+                .sorted(java.util.Comparator.comparing(Issue::getRank))
+                .toList();
+        int idx = -1;
+        for (int i = 0; i < nextIssues.size(); i++) {
+            if (nextIssues.get(i).getId().equals(after.getId())) {
+                idx = i;
+                break;
+            }
+        }
+        String prev = idx >= 0 ? nextIssues.get(idx).getRank() : null;
+        String next = idx + 1 < nextIssues.size() ? nextIssues.get(idx + 1).getRank() : null;
+        return issueRankService.rankBetween(prev, next);
     }
 
     private IssueSummaryResponse toSummary(Issue issue) {

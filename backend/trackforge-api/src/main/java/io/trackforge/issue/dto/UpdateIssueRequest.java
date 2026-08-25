@@ -8,5 +8,6 @@ public record UpdateIssueRequest(
         UUID assigneeId,
         String priority,
         Integer storyPoints,
-        UUID statusId) {
+        UUID statusId,
+        UUID afterIssueId) {
 }
