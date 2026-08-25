@@ -81,6 +81,7 @@ public class IssueService {
         if (request.assigneeId() != null) issue.setAssigneeId(request.assigneeId());
         if (request.priority() != null) issue.setPriority(request.priority());
         if (request.storyPoints() != null) issue.setStoryPoints(request.storyPoints());
+        if (request.parentId() != null) issue.setParentId(request.parentId());
 
         Issue saved = issueRepository.save(issue);
         auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "CREATE", "Issue", saved.getId(), null, toSummary(saved));

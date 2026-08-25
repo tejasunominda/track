@@ -11,5 +11,6 @@ public record CreateIssueRequest(
         String description,
         UUID assigneeId,
         String priority,
-        Integer storyPoints) {
+        Integer storyPoints,
+        UUID parentId) {
 }
