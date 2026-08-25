@@ -34,6 +34,7 @@ public class IssueService {
     private final IssueRankService issueRankService;
     private final AuditLogPublisher auditLogPublisher;
     private final WebhookDispatcher webhookDispatcher;
+    private final io.trackforge.search.indexer.IssueIndexer issueIndexer;
 
     public IssueService(
             IssueRepository issueRepository,
@@ -43,7 +44,8 @@ public class IssueService {
             WorkflowTransitionEngine workflowEngine,
             IssueRankService issueRankService,
             AuditLogPublisher auditLogPublisher,
-            WebhookDispatcher webhookDispatcher) {
+            WebhookDispatcher webhookDispatcher,
+            io.trackforge.search.indexer.IssueIndexer issueIndexer) {
         this.issueRepository = issueRepository;
         this.issueTypeRepository = issueTypeRepository;
         this.issueStatusRepository = issueStatusRepository;
@@ -52,6 +54,7 @@ public class IssueService {
         this.issueRankService = issueRankService;
         this.auditLogPublisher = auditLogPublisher;
         this.webhookDispatcher = webhookDispatcher;
+        this.issueIndexer = issueIndexer;
     }
 
     @Transactional(readOnly = true)
@@ -93,6 +96,7 @@ public class IssueService {
 
         Issue saved = issueRepository.save(issue);
         IssueSummaryResponse created = toSummary(saved);
+        indexIssue(saved);
         auditLogPublisher.emit(saved.getTenantId(), principal.userId(), "CREATE", "Issue", saved.getId(), null, created);
         webhookDispatcher.dispatch("issue.created", "Issue", saved.getId(), created);
         return created;
@@ -122,6 +126,7 @@ public class IssueService {
         }
 
         Issue updated = issueRepository.save(issue);
+        indexIssue(updated);
         IssueSummaryResponse response = toSummary(updated);
         webhookDispatcher.dispatch("issue.updated", "Issue", updated.getId(), response);
         return response;
@@ -152,6 +157,17 @@ public class IssueService {
         String prev = idx >= 0 ? nextIssues.get(idx).getRank() : null;
         String next = idx + 1 < nextIssues.size() ? nextIssues.get(idx + 1).getRank() : null;
         return issueRankService.rankBetween(prev, next);
+    }
+
+    private void indexIssue(Issue issue) {
+        IssueType type = issueTypeRepository.findById(issue.getIssueTypeId()).orElse(null);
+        IssueStatus status = issueStatusRepository.findById(issue.getStatusId()).orElse(null);
+        issueIndexer.index(
+                issue,
+                status != null ? status.getName() : null,
+                type != null ? type.getName() : null,
+                issue.getReporterId() != null ? issue.getReporterId().toString() : null,
+                issue.getAssigneeId() != null ? issue.getAssigneeId().toString() : null);
     }
 
     private IssueSummaryResponse toSummary(Issue issue) {

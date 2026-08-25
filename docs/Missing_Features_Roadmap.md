@@ -75,7 +75,7 @@ This document tracks the gaps between the current implementation and a productio
 
 - [ ] Real SAML2/OIDC relying party integration
 - [ ] Issue-level security (restricted issues / roles)
-- [ ] Audit log UI with export (CSV/JSON)
+- [x] Audit log CSV export
 - [ ] GDPR export and right-to-be-forgotten flows
 - [ ] Stripe Checkout + subscription lifecycle
 - [ ] Real Kubernetes/Terraform deployment
