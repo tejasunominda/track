@@ -9,5 +9,7 @@ public record AuditLogResponse(
         String action,
         String entityType,
         UUID entityId,
+        String beforeState,
+        String afterState,
         Instant createdAt) {
 }

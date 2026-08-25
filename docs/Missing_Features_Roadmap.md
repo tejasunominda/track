@@ -65,7 +65,8 @@ This document tracks the gaps between the current implementation and a productio
 - [ ] Email notifications (SMTP)
 - [ ] Slack/Teams webhook notifications
 - [ ] GitHub/GitLab/Bitbucket issue-linking and smart commits
-- [ ] Webhook event payload templates and retries
+- [x] Webhook event dispatch for issue/comment/sprint events
+- [ ] Webhook payload templates and retries
 - [ ] SCIM user/group provisioning
 
 ### Phase 6 — Enterprise Hardening (F13, F18)

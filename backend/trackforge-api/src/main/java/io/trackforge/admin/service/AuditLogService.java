@@ -21,7 +21,33 @@ public class AuditLogService {
         return auditLogRepository.findByTenantIdOrderByCreatedAtDesc(tenantId).stream()
                 .map(a -> new AuditLogResponse(
                         a.getId(), a.getActorUserId(), a.getAction(), a.getEntityType(),
-                        a.getEntityId(), a.getCreatedAt()))
+                        a.getEntityId(), a.getBeforeState(), a.getAfterState(), a.getCreatedAt()))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public String exportCsv(UUID tenantId) {
+        List<io.trackforge.admin.model.AuditLog> logs = auditLogRepository.findByTenantIdOrderByCreatedAtDesc(tenantId);
+        StringBuilder sb = new StringBuilder("id,actorUserId,action,entityType,entityId,beforeState,afterState,createdAt\n");
+        for (io.trackforge.admin.model.AuditLog a : logs) {
+            sb.append(escape(a.getId())).append(",")
+              .append(escape(a.getActorUserId())).append(",")
+              .append(escape(a.getAction())).append(",")
+              .append(escape(a.getEntityType())).append(",")
+              .append(escape(a.getEntityId())).append(",")
+              .append(escape(a.getBeforeState())).append(",")
+              .append(escape(a.getAfterState())).append(",")
+              .append(a.getCreatedAt()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private String escape(Object value) {
+        if (value == null) return "";
+        String s = value.toString();
+        if (s.contains(",") || s.contains("\"") || s.contains("\n")) {
+            return "\"" + s.replace("\"", "\"\"") + "\"";
+        }
+        return s;
     }
 }
