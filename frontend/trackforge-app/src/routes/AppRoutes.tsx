@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppShell } from "@/app/AppShell";
 import { BoardPage } from "@/features/board/pages/BoardPage";
+import { IssueDetailPage } from "@/features/issues/pages/IssueDetailPage";
+import { IssuesPage } from "@/features/issues/pages/IssuesPage";
 import { ProjectsPage } from "@/features/projects/pages/ProjectsPage";
 
 /**
@@ -16,7 +18,8 @@ export function AppRoutes() {
         <Route index element={<Navigate to="/projects" replace />} />
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="projects/:projectId/board" element={<BoardPage />} />
-        {/* <Route path="projects/:projectId/backlog" element={<BacklogView />} /> */}
+        <Route path="projects/:projectId/issues" element={<IssuesPage />} />
+        <Route path="issues/:issueId" element={<IssueDetailPage />} />
       </Route>
     </Routes>
   );

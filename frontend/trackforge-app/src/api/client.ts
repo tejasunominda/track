@@ -8,10 +8,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const token = useAuthStore.getState().accessToken;
+  const isFormData = init?.body instanceof FormData;
   const res = await fetch(`${API_BASE_URL}${path}`, {
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init?.headers,
     },
