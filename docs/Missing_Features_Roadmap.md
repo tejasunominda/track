@@ -41,7 +41,7 @@ This document tracks the gaps between the current implementation and a productio
 - [ ] OpenSearch/Elasticsearch transport with real cluster
 - [x] TQL parser for `project = ENG AND status != Done`
 - [x] TQL autocomplete API
-- [ ] Saved filters / search subscriptions
+- [x] Saved filters / search subscriptions
 - [ ] Global search UI with faceting
 
 ### Phase 4 — Frontend Application Parity (F2-04, F3-03/04, F5-06..09)

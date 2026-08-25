@@ -15,7 +15,10 @@ export interface BoardColumn {
 export interface BoardIssue {
   id: string;
   summary: string;
-  statusName: string;
+  issueTypeName: string | null;
+  statusName: string | null;
+  statusCategory: string | null;
   priority: string | null;
   assigneeId: string | null;
+  reporterId: string | null;
 }
