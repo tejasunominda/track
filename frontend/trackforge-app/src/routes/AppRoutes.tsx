@@ -1,4 +1,34 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { CustomersPage } from "@/features/customers/pages/CustomersPage";
+import { ContactsPage } from "@/features/contacts/pages/ContactsPage";
+import { LeadsPage } from "@/features/leads/pages/LeadsPage";
+import { DealsPage } from "@/features/deals/pages/DealsPage";
+import { OpportunitiesPage } from "@/features/opportunities/pages/OpportunitiesPage";
+import { QuotesPage } from "@/features/quotes/pages/QuotesPage";
+import { OrdersPage } from "@/features/orders/pages/OrdersPage";
+import { ShipmentsPage } from "@/features/shipments/pages/ShipmentsPage";
+import { InvoicesReceivedPage } from "@/features/invoices-received/pages/InvoicesReceivedPage";
+import { PaymentsPage } from "@/features/payments/pages/PaymentsPage";
+import { RefundsPage } from "@/features/refunds/pages/RefundsPage";
+import { BudgetsPage } from "@/features/budgets/pages/BudgetsPage";
+import { ForecastsPage } from "@/features/forecasts/pages/ForecastsPage";
+import { CostCentersPage } from "@/features/cost-centers/pages/CostCentersPage";
+import { PurchaseOrdersPage } from "@/features/purchase-orders/pages/PurchaseOrdersPage";
+import { SuppliersPage } from "@/features/suppliers/pages/SuppliersPage";
+import { ManufacturingPage } from "@/features/manufacturing/pages/ManufacturingPage";
+import { BillOfMaterialsPage } from "@/features/bill-of-materials/pages/BillOfMaterialsPage";
+import { WorkOrdersPage } from "@/features/work-orders/pages/WorkOrdersPage";
+import { QualityPage } from "@/features/quality/pages/QualityPage";
+import { InspectionsPage } from "@/features/inspections/pages/InspectionsPage";
+import { DefectsPage } from "@/features/defects/pages/DefectsPage";
+import { NonConformancesPage } from "@/features/non-conformances/pages/NonConformancesPage";
+import { CAPAPage } from "@/features/capa/pages/CAPAPage";
+import { TrainingPage } from "@/features/training/pages/TrainingPage";
+import { CertificationsPage } from "@/features/certifications/pages/CertificationsPage";
+import { CompliancePage } from "@/features/compliance/pages/CompliancePage";
+import { PoliciesPage } from "@/features/policies/pages/PoliciesPage";
+import { ProceduresPage } from "@/features/procedures/pages/ProceduresPage";
+import { WorkInstructionsPage } from "@/features/work-instructions/pages/WorkInstructionsPage";
 import { WikiPage } from "@/features/wiki/pages/WikiPage";
 import { DocumentsPage } from "@/features/documents/pages/DocumentsPage";
 import { FilesPage } from "@/features/files/pages/FilesPage";
@@ -196,6 +226,36 @@ export function AppRoutes() {
         <Route path="export" element={<ExportPage />} />
         <Route path="archive" element={<ArchivePage />} />
         <Route path="issues/:issueId" element={<IssueDetailPage />} />
+        <Route path="customers" element={<CustomersPage />} />
+        <Route path="contacts" element={<ContactsPage />} />
+        <Route path="leads" element={<LeadsPage />} />
+        <Route path="deals" element={<DealsPage />} />
+        <Route path="opportunities" element={<OpportunitiesPage />} />
+        <Route path="quotes" element={<QuotesPage />} />
+        <Route path="orders" element={<OrdersPage />} />
+        <Route path="shipments" element={<ShipmentsPage />} />
+        <Route path="invoices-received" element={<InvoicesReceivedPage />} />
+        <Route path="payments" element={<PaymentsPage />} />
+        <Route path="refunds" element={<RefundsPage />} />
+        <Route path="budgets" element={<BudgetsPage />} />
+        <Route path="forecasts" element={<ForecastsPage />} />
+        <Route path="cost-centers" element={<CostCentersPage />} />
+        <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
+        <Route path="suppliers" element={<SuppliersPage />} />
+        <Route path="manufacturing" element={<ManufacturingPage />} />
+        <Route path="bill-of-materials" element={<BillOfMaterialsPage />} />
+        <Route path="work-orders" element={<WorkOrdersPage />} />
+        <Route path="quality" element={<QualityPage />} />
+        <Route path="inspections" element={<InspectionsPage />} />
+        <Route path="defects" element={<DefectsPage />} />
+        <Route path="non-conformances" element={<NonConformancesPage />} />
+        <Route path="capa" element={<CAPAPage />} />
+        <Route path="training" element={<TrainingPage />} />
+        <Route path="certifications" element={<CertificationsPage />} />
+        <Route path="compliance" element={<CompliancePage />} />
+        <Route path="policies" element={<PoliciesPage />} />
+        <Route path="procedures" element={<ProceduresPage />} />
+        <Route path="work-instructions" element={<WorkInstructionsPage />} />
         <Route path="wiki" element={<WikiPage />} />
         <Route path="documents" element={<DocumentsPage />} />
         <Route path="files" element={<FilesPage />} />

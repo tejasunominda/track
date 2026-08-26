@@ -228,6 +228,38 @@ export function SidebarNav() {
         <SidebarItem to="/hardware" icon={List} label="Hardware" />
         <SidebarItem to="/software" icon={List} label="Software" />
       </SidebarSection>
+      <SidebarSection title="More 6">
+        <SidebarItem to="/customers" icon={List} label="Customers" />
+        <SidebarItem to="/contacts" icon={List} label="Contacts" />
+        <SidebarItem to="/leads" icon={List} label="Leads" />
+        <SidebarItem to="/deals" icon={List} label="Deals" />
+        <SidebarItem to="/opportunities" icon={List} label="Opportunities" />
+        <SidebarItem to="/quotes" icon={List} label="Quotes" />
+        <SidebarItem to="/orders" icon={List} label="Orders" />
+        <SidebarItem to="/shipments" icon={List} label="Shipments" />
+        <SidebarItem to="/invoices-received" icon={List} label="Invoices received" />
+        <SidebarItem to="/payments" icon={List} label="Payments" />
+        <SidebarItem to="/refunds" icon={List} label="Refunds" />
+        <SidebarItem to="/budgets" icon={List} label="Budgets" />
+        <SidebarItem to="/forecasts" icon={List} label="Forecasts" />
+        <SidebarItem to="/cost-centers" icon={List} label="Cost centers" />
+        <SidebarItem to="/purchase-orders" icon={List} label="Purchase orders" />
+        <SidebarItem to="/suppliers" icon={List} label="Suppliers" />
+        <SidebarItem to="/manufacturing" icon={List} label="Manufacturing" />
+        <SidebarItem to="/bill-of-materials" icon={List} label="Bill of materials" />
+        <SidebarItem to="/work-orders" icon={List} label="Work orders" />
+        <SidebarItem to="/quality" icon={List} label="Quality" />
+        <SidebarItem to="/inspections" icon={List} label="Inspections" />
+        <SidebarItem to="/defects" icon={List} label="Defects" />
+        <SidebarItem to="/non-conformances" icon={List} label="Non-conformances" />
+        <SidebarItem to="/capa" icon={List} label="CAPA" />
+        <SidebarItem to="/training" icon={List} label="Training" />
+        <SidebarItem to="/certifications" icon={List} label="Certifications" />
+        <SidebarItem to="/compliance" icon={List} label="Compliance" />
+        <SidebarItem to="/policies" icon={List} label="Policies" />
+        <SidebarItem to="/procedures" icon={List} label="Procedures" />
+        <SidebarItem to="/work-instructions" icon={List} label="Work instructions" />
+      </SidebarSection>
     </nav>
   );
 }
