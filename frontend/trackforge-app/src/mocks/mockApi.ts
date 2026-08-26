@@ -143,6 +143,7 @@ let workLogs: any[] = [
 const watchers = new Set<string>(["i-1:u-2"]);
 const stars = new Set<string>(["i-1:u-me"]);
 const issueLinks: any[] = [];
+const issueLabels: Record<string, string[]> = { "i-1": ["auth", "frontend"] };
 
 const velocity = [
   { sprintId: "sp-1", sprintName: "Sprint 1", committed: 18, completed: 14 },
@@ -349,6 +350,26 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
       return newLink;
     }
     return issueLinks.filter((l) => l.fromIssueId === issueId);
+  }
+
+  const labelMatch = clean.match(/^\/issues\/([^\/]+)\/labels$/);
+  if (labelMatch) {
+    const issueId = labelMatch[1];
+    const labels = issueLabels[issueId] ?? [];
+    if (method === "POST") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      const label = body.label;
+      if (label && !labels.includes(label)) {
+        issueLabels[issueId] = [...labels, label];
+      }
+      return issueLabels[issueId];
+    }
+    if (method === "DELETE") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      issueLabels[issueId] = labels.filter((l) => l !== body.label);
+      return issueLabels[issueId];
+    }
+    return labels;
   }
 
   if (clean.match(/\/projects\/.+\/board$/)) {

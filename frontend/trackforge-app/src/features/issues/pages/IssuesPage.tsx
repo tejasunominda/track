@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Search, Plus } from "lucide-react";
 import { listIssues } from "@/features/issues/api/issues";
 import { Issue } from "@/features/issues/types/issue";
@@ -46,10 +46,15 @@ function SkeletonRow() {
 
 export function IssuesPage() {
   const { projectId } = useParams<{ projectId: string }>();
+  const [searchParams] = useSearchParams();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [refresh, setRefresh] = useState(false);
+
+  useEffect(() => {
+    setShowModal(searchParams.get("create") === "true");
+  }, [searchParams]);
 
   useEffect(() => {
     if (!projectId) return;

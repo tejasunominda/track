@@ -52,6 +52,17 @@ export function GlobalNav() {
   }, []);
 
   useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "c" && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+        const pid = currentProjectId ?? "p-1";
+        navigate(`/projects/${pid}/issues?create=true`);
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [currentProjectId, navigate]);
+
+  useEffect(() => {
     if (timer.current) window.clearTimeout(timer.current);
     if (query.length < 2) {
       setResults({ issues: [], projects: [] });

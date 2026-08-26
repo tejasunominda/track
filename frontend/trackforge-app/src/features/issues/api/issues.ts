@@ -113,3 +113,21 @@ export async function linkIssue(issueId: string, targetId: string, linkType = "r
     body: JSON.stringify({ targetId, linkType }),
   });
 }
+
+export async function listLabels(issueId: string): Promise<string[]> {
+  return apiFetch<string[]>(`/issues/${issueId}/labels`);
+}
+
+export async function addLabel(issueId: string, label: string): Promise<string[]> {
+  return apiFetch<string[]>(`/issues/${issueId}/labels`, {
+    method: "POST",
+    body: JSON.stringify({ label }),
+  });
+}
+
+export async function removeLabel(issueId: string, label: string): Promise<string[]> {
+  return apiFetch<string[]>(`/issues/${issueId}/labels`, {
+    method: "DELETE",
+    body: JSON.stringify({ label }),
+  });
+}

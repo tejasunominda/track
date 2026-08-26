@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Eye, Paperclip, MessageSquare, Star, User, Calendar, Flag, Clock } from "lucide-react";
+import { Copy, Eye, Paperclip, MessageSquare, Pencil, Star, User, Calendar, Flag, Clock, X } from "lucide-react";
 import { useToast } from "@/app/ToastProvider";
 import { Avatar } from "@/components/Avatar";
 import { relativeTime } from "@/lib/date";
-import { createSubTask, createWorkLog, deleteIssue, fetchIssue, getStar, linkIssue, listAttachments, listComments, listLinkedIssues, listSubTasks, listWatchers, listWorkLogs, postComment, starIssue, unstarIssue, unwatchIssue, updateIssue, uploadAttachment, watchIssue } from "@/features/issues/api/issues";
+import { addLabel, createSubTask, createWorkLog, deleteIssue, fetchIssue, getStar, linkIssue, listAttachments, listComments, listLabels, listLinkedIssues, listSubTasks, listWatchers, listWorkLogs, postComment, removeLabel, starIssue, unstarIssue, unwatchIssue, updateIssue, uploadAttachment, watchIssue } from "@/features/issues/api/issues";
 import { Attachment, Issue, IssueComment, WorkLog } from "@/features/issues/types/issue";
 
 const priorityColor: Record<string, string> = {
@@ -41,6 +41,10 @@ export function IssueDetailPage() {
   const [linkedIssues, setLinkedIssues] = useState<any[]>([]);
   const [subSummary, setSubSummary] = useState("");
   const [linkTargetId, setLinkTargetId] = useState("");
+  const [labels, setLabels] = useState<string[]>([]);
+  const [newLabel, setNewLabel] = useState("");
+  const [editingSummary, setEditingSummary] = useState(false);
+  const [summaryDraft, setSummaryDraft] = useState("");
   const [loading, setLoading] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -48,7 +52,7 @@ export function IssueDetailPage() {
     if (!issueId) return;
     setLoading(true);
     try {
-      const [i, c, a, w, watchers, star, subs, links] = await Promise.all([
+      const [i, c, a, w, watchers, star, subs, links, labs] = await Promise.all([
         fetchIssue(issueId),
         listComments(issueId),
         listAttachments(issueId),
@@ -57,6 +61,7 @@ export function IssueDetailPage() {
         getStar(issueId),
         listSubTasks(issueId),
         listLinkedIssues(issueId),
+        listLabels(issueId),
       ]);
       setIssue(i);
       setComments(c);
@@ -66,6 +71,7 @@ export function IssueDetailPage() {
       setStarred(star.starred);
       setSubTasks(subs);
       setLinkedIssues(links);
+      setLabels(labs);
     } catch (e) {
       console.error(e);
     } finally {
@@ -196,7 +202,98 @@ export function IssueDetailPage() {
     }
   };
 
-  if (loading) return <div className="p-6">Loading issue…</div>;
+  const saveSummary = async () => {
+    if (!issue || !summaryDraft.trim()) return;
+    try {
+      const updated = await updateIssue(issue.id, { summary: summaryDraft });
+      setIssue(updated);
+      setEditingSummary(false);
+      notify("Summary updated");
+    } catch (err) {
+      notify("Failed to update summary", "error");
+      console.error(err);
+    }
+  };
+
+  const handleAddLabel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!issueId || !newLabel.trim()) return;
+    try {
+      const labs = await addLabel(issueId, newLabel);
+      setLabels(labs);
+      setNewLabel("");
+      notify("Label added");
+    } catch (err) {
+      notify("Failed to add label", "error");
+      console.error(err);
+    }
+  };
+
+  const handleRemoveLabel = async (label: string) => {
+    if (!issueId) return;
+    try {
+      const labs = await removeLabel(issueId, label);
+      setLabels(labs);
+      notify("Label removed");
+    } catch (err) {
+      notify("Failed to remove label", "error");
+      console.error(err);
+    }
+  };
+
+  const copyKey = async () => {
+    if (!issue) return;
+    try {
+      await navigator.clipboard.writeText(issue.id);
+      notify("Issue key copied");
+      return;
+    } catch {
+      // fallthrough
+    }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = issue.id;
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      if (ok) notify("Issue key copied");
+      else notify("Copy failed", "error");
+    } catch {
+      notify("Copy failed", "error");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="h-full bg-slate-50 p-6 animate-fadeIn">
+        <div className="mb-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-3 h-4 w-24 animate-pulse rounded bg-slate-200" />
+          <div className="mb-2 h-8 w-2/3 animate-pulse rounded bg-slate-200" />
+          <div className="mb-4 h-4 w-40 animate-pulse rounded bg-slate-200" />
+          <div className="h-16 w-full animate-pulse rounded bg-slate-200" />
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-4 lg:col-span-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="mb-3 h-4 w-32 animate-pulse rounded bg-slate-200" />
+                <div className="h-24 w-full animate-pulse rounded bg-slate-200" />
+              </div>
+            ))}
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-4 h-4 w-24 animate-pulse rounded bg-slate-200" />
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-8 w-full animate-pulse rounded bg-slate-200" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!issue) return <div className="p-6 text-red-600">Issue not found.</div>;
 
   return (
@@ -208,7 +305,58 @@ export function IssueDetailPage() {
           <PriorityBadge priority={issue.priority} />
         </div>
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold text-slate-900">{issue.summary}</h1>
+          <div className="flex-1">
+            {editingSummary ? (
+              <input
+                autoFocus
+                value={summaryDraft}
+                onChange={(e) => setSummaryDraft(e.target.value)}
+                onBlur={saveSummary}
+                onKeyDown={(e) => { if (e.key === "Enter") saveSummary(); }}
+                className="w-full rounded-lg border border-blue-300 bg-white px-3 py-2 text-2xl font-bold text-slate-900 outline-none ring-1 ring-blue-100"
+              />
+            ) : (
+              <div className="group flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-slate-900">{issue.summary}</h1>
+                <button
+                  title="Edit summary"
+                  onClick={() => { setSummaryDraft(issue.summary); setEditingSummary(true); }}
+                  className="rounded p-1 text-slate-400 opacity-0 transition-all duration-150 hover:bg-slate-100 hover:text-slate-700 group-hover:opacity-100"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={copyKey}
+                  className="rounded p-1 text-slate-400 opacity-0 transition-all duration-150 hover:bg-slate-100 hover:text-slate-700 group-hover:opacity-100"
+                  title="Copy issue key"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
+              Added <span className="font-medium text-slate-700">{relativeTime(issue.createdAt)}</span> by
+              <Avatar id={issue.reporterId} size={5} />
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {labels.map((l) => (
+                <span key={l} className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+                  {l}
+                  <button onClick={() => handleRemoveLabel(l)} className="text-slate-400 hover:text-rose-600">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              <form onSubmit={handleAddLabel} className="inline-flex items-center gap-1">
+                <input
+                  value={newLabel}
+                  onChange={(e) => setNewLabel(e.target.value)}
+                  placeholder="+ label"
+                  className="w-20 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs outline-none focus:border-blue-500"
+                />
+              </form>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={toggleWatch}
@@ -225,10 +373,6 @@ export function IssueDetailPage() {
               {starred ? "Starred" : "Star"}
             </button>
           </div>
-        </div>
-        <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
-          Added <span className="font-medium text-slate-700">{relativeTime(issue.createdAt)}</span> by
-          <Avatar id={issue.reporterId} size={5} />
         </div>
         <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{issue.description}</p>
       </div>

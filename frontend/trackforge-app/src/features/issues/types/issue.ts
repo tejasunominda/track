@@ -11,6 +11,7 @@ export interface Issue {
   priority: string | null;
   storyPoints: number | null;
   parentId?: string | null;
+  labels?: string[];
   createdAt: string;
   updatedAt: string;
 }
