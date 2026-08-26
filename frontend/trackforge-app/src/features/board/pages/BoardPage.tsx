@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
+import { useToast } from "@/app/ToastProvider";
 import {
   DndContext,
   DragEndEvent,
@@ -55,7 +56,6 @@ function IssueCard({ issue }: { issue: BoardIssue }) {
   return (
     <div
       ref={setNodeRef}
-      data-testid={`issue-card-${issue.id}`}
       {...listeners}
       {...attributes}
       style={style}
@@ -80,13 +80,13 @@ function IssueCard({ issue }: { issue: BoardIssue }) {
 
 function Column({
   column,
-  children,
+  issues,
 }: {
   column: BoardColumn;
-  children: React.ReactNode;
+  issues: BoardIssue[];
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.statusId, data: { column } });
-  const count = column.issues.length;
+  const count = issues.length;
   return (
     <div
       ref={setNodeRef}
@@ -103,18 +103,22 @@ function Column({
           </span>
         </div>
       </div>
-      <div className="flex flex-1 flex-col overflow-y-auto px-1">{children}</div>
+      <div className="flex flex-1 flex-col overflow-y-auto px-1">{issues.map((issue) => (
+        <IssueCard key={issue.id} issue={issue} />
+      ))}</div>
     </div>
   );
 }
 
 export function BoardPage() {
   const { projectId } = useParams<{ projectId: string }>();
+  const { notify } = useToast();
   const [board, setBoard] = useState<BoardState | null>(null);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<BoardIssue | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const [filterText, setFilterText] = useState("");
 
   const loadBoard = () => {
     if (!projectId) return;
@@ -128,6 +132,20 @@ export function BoardPage() {
   useEffect(() => {
     loadBoard();
   }, [projectId, refresh]);
+
+  const filteredColumns = useMemo(() => {
+    if (!board) return [];
+    const q = filterText.toLowerCase();
+    return board.columns.map((c) => ({
+      ...c,
+      issues: c.issues.filter(
+        (i) =>
+          i.summary.toLowerCase().includes(q) ||
+          i.id.toLowerCase().includes(q) ||
+          (i.assigneeId ?? "").toLowerCase().includes(q)
+      ),
+    }));
+  }, [board, filterText]);
 
   const handleDragStart = (e: DragStartEvent) => {
     const issue = e.active.data.current?.issue as BoardIssue | undefined;
@@ -174,7 +192,9 @@ export function BoardPage() {
 
     try {
       await moveIssue(activeId, newStatusId, afterIssueId);
+      notify("Issue moved");
     } catch (err) {
+      notify("Failed to move issue", "error");
       console.error("Failed to move issue", err);
       fetchBoard(projectId).then(setBoard);
     }
@@ -190,13 +210,30 @@ export function BoardPage() {
           <h1 className="text-xl font-bold text-slate-900">{board.projectName}</h1>
           <p className="text-sm text-slate-500">Board</p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0"
-        >
-          <Plus className="h-4 w-4" />
-          Create issue
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm transition-all duration-200 focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100">
+            <Search className="h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              placeholder="Filter cards…"
+              className="bg-transparent text-sm outline-none"
+            />
+            {filterText && (
+              <button onClick={() => setFilterText("")} className="text-slate-400 hover:text-slate-600">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0"
+          >
+            <Plus className="h-4 w-4" />
+            Create issue
+          </button>
+        </div>
       </div>
 
       {showModal && projectId && (
@@ -208,12 +245,8 @@ export function BoardPage() {
       )}
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex h-[calc(100%-4rem)] gap-3 overflow-x-auto pb-2">
-          {board.columns.map((column) => (
-            <Column key={column.statusId} column={column}>
-              {column.issues.map((issue) => (
-                <IssueCard key={issue.id} issue={issue} />
-              ))}
-            </Column>
+          {filteredColumns.map((column) => (
+            <Column key={column.statusId} column={column} issues={column.issues} />
           ))}
         </div>
         <DragOverlay>{active ? <IssueCard issue={active} /> : null}</DragOverlay>

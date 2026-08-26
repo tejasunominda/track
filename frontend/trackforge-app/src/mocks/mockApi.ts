@@ -152,6 +152,18 @@ const velocity = [
   { sprintId: "sp-4", sprintName: "Sprint 4", committed: 16, completed: 12 },
 ];
 
+let sprints: any[] = [
+  { id: "sp-1", projectId: "p-1", name: "Sprint 1", goal: "Authentication flow", status: "ACTIVE", startDate: "2025-01-01", endDate: "2025-01-14" },
+  { id: "sp-2", projectId: "p-1", name: "Sprint 2", goal: "Board polish", status: "PLANNED", startDate: null, endDate: null },
+  { id: "sp-3", projectId: "p-1", name: "Sprint 3", goal: "Reporting basics", status: "CLOSED", startDate: "2024-12-01", endDate: "2024-12-14" },
+];
+
+let notifications: any[] = [
+  { id: "n-1", text: "Alice commented on ENG-12", time: "2 min ago", read: false },
+  { id: "n-2", text: "Sprint 2 started", time: "1 hour ago", read: false },
+  { id: "n-3", text: "You were assigned to ENG-8", time: "3 hours ago", read: true },
+];
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -370,6 +382,45 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
       return issueLabels[issueId];
     }
     return labels;
+  }
+
+  const sprintMatch = clean.match(/^\/sprints\/([^\/]+)\/(start|complete)$/);
+  if (sprintMatch) {
+    const sprintId = sprintMatch[1];
+    const action = sprintMatch[2];
+    const sprint = sprints.find((s) => s.id === sprintId);
+    if (sprint) {
+      sprint.status = action === "start" ? "ACTIVE" : "CLOSED";
+    }
+    return sprint;
+  }
+
+  if (clean === "/sprints" && method === "POST") {
+    const body = init?.body ? JSON.parse(init.body as string) : {};
+    const newSprint = { id: id(), projectId: body.projectId ?? "p-1", name: body.name, goal: body.goal ?? null, status: "PLANNED", startDate: null, endDate: null };
+    sprints.push(newSprint);
+    return newSprint;
+  }
+
+  if (clean.startsWith("/sprints?")) {
+    const q = queryParams(clean);
+    return sprints.filter((s) => s.projectId === q.projectId);
+  }
+
+  const notificationReadMatch = clean.match(/^\/notifications\/([^\/]+)\/read$/);
+  if (notificationReadMatch) {
+    const note = notifications.find((n) => n.id === notificationReadMatch[1]);
+    if (note) note.read = true;
+    return note;
+  }
+
+  if (clean === "/notifications/read-all" && method === "POST") {
+    notifications.forEach((n) => (n.read = true));
+    return notifications;
+  }
+
+  if (clean === "/notifications") {
+    return notifications;
   }
 
   if (clean.match(/\/projects\/.+\/board$/)) {

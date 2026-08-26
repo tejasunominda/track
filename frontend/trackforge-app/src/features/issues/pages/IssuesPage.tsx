@@ -69,7 +69,7 @@ export function IssuesPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [refresh, setRefresh] = useState(false);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(searchParams.get("search") ?? "");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
