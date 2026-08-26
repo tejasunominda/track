@@ -140,6 +140,10 @@ let workLogs: any[] = [
   { id: "w-1", issueId: "i-1", authorId: "u-2", authorName: "Alice", timeSpentMinutes: 120, description: "Initial setup", startedAt: "2025-01-05T09:00:00Z", createdAt: "2025-01-05T09:00:00Z" },
 ];
 
+const watchers = new Set<string>(["i-1:u-2"]);
+const stars = new Set<string>(["i-1:u-me"]);
+const issueLinks: any[] = [];
+
 const velocity = [
   { sprintId: "sp-1", sprintName: "Sprint 1", committed: 18, completed: 14 },
   { sprintId: "sp-2", sprintName: "Sprint 2", committed: 20, completed: 19 },
@@ -242,10 +246,13 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
           issue.statusCategory = target.statusCategory;
         }
       }
-      if (body.assigneeId) issue.assigneeId = body.assigneeId;
+      if (body.statusName) issue.statusName = body.statusName;
+      if (body.statusCategory) issue.statusCategory = body.statusCategory;
+      if ("assigneeId" in body) issue.assigneeId = body.assigneeId || null;
       if (body.priority) issue.priority = body.priority;
       if (body.summary) issue.summary = body.summary;
       if (body.description) issue.description = body.description;
+      issue.updatedAt = new Date().toISOString();
       return { ...issue };
     }
     return { ...issue };
@@ -284,6 +291,64 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
       return newWorkLog;
     }
     return workLogs.filter((w) => w.issueId === issueId);
+  }
+
+  const watcherMatch = clean.match(/^\/issues\/([^\/]+)\/watchers$/);
+  if (watcherMatch) {
+    const issueId = watcherMatch[1];
+    const key = (uid: string) => `${issueId}:${uid}`;
+    if (method === "POST") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      watchers.add(key(body.userId ?? "u-me"));
+      return { status: 204 };
+    }
+    if (method === "DELETE") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      watchers.delete(key(body.userId ?? "u-me"));
+      return { status: 204 };
+    }
+    return { count: [...watchers].filter((k) => k.startsWith(`${issueId}:`)).length, isWatching: watchers.has(key("u-me")) };
+  }
+
+  const starMatch = clean.match(/^\/issues\/([^\/]+)\/star$/);
+  if (starMatch) {
+    const issueId = starMatch[1];
+    const key = `${issueId}:u-me`;
+    if (method === "POST") {
+      stars.add(key);
+      return { starred: true };
+    }
+    if (method === "DELETE") {
+      stars.delete(key);
+      return { starred: false };
+    }
+    return { starred: stars.has(key) };
+  }
+
+  const subtaskMatch = clean.match(/^\/issues\/([^\/]+)\/subtasks$/);
+  if (subtaskMatch) {
+    const issueId = subtaskMatch[1];
+    if (method === "POST") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      const parent = issues.find((i) => i.id === issueId);
+      const newIssue = { id: id(), projectId: parent?.projectId ?? "p-1", issueTypeName: "Sub-task", statusName: "To Do", statusCategory: "TODO", summary: body.summary, description: body.description ?? null, reporterId: "u-me", assigneeId: body.assigneeId ?? null, priority: "Medium", storyPoints: null, parentId: issueId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      issues.push(newIssue);
+      return newIssue;
+    }
+    return issues.filter((i) => i.parentId === issueId);
+  }
+
+  const linkMatch = clean.match(/^\/issues\/([^\/]+)\/links$/);
+  if (linkMatch) {
+    const issueId = linkMatch[1];
+    if (method === "POST") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      const target = issues.find((i) => i.id === body.targetId);
+      const newLink = { id: id(), fromIssueId: issueId, toIssueId: body.targetId, toSummary: target?.summary ?? body.targetId, linkType: body.linkType ?? "relates to" };
+      issueLinks.push(newLink);
+      return newLink;
+    }
+    return issueLinks.filter((l) => l.fromIssueId === issueId);
   }
 
   if (clean.match(/\/projects\/.+\/board$/)) {

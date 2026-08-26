@@ -10,6 +10,7 @@ export interface Issue {
   assigneeId: string | null;
   priority: string | null;
   storyPoints: number | null;
+  parentId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Paperclip, MessageSquare, User, Calendar, Flag, Clock } from "lucide-react";
+import { Eye, Paperclip, MessageSquare, Star, User, Calendar, Flag, Clock } from "lucide-react";
 import { useToast } from "@/app/ToastProvider";
 import { Avatar } from "@/components/Avatar";
 import { relativeTime } from "@/lib/date";
-import { createWorkLog, deleteIssue, fetchIssue, listAttachments, listComments, listWorkLogs, postComment, uploadAttachment } from "@/features/issues/api/issues";
+import { createSubTask, createWorkLog, deleteIssue, fetchIssue, getStar, linkIssue, listAttachments, listComments, listLinkedIssues, listSubTasks, listWatchers, listWorkLogs, postComment, starIssue, unstarIssue, unwatchIssue, updateIssue, uploadAttachment, watchIssue } from "@/features/issues/api/issues";
 import { Attachment, Issue, IssueComment, WorkLog } from "@/features/issues/types/issue";
 
 const priorityColor: Record<string, string> = {
@@ -32,9 +32,15 @@ export function IssueDetailPage() {
   const [comments, setComments] = useState<IssueComment[]>([]);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [workLogs, setWorkLogs] = useState<WorkLog[]>([]);
+  const [watchers, setWatchers] = useState<{ count: number; isWatching: boolean }>({ count: 0, isWatching: false });
+  const [starred, setStarred] = useState(false);
   const [commentBody, setCommentBody] = useState("");
   const [logMinutes, setLogMinutes] = useState("");
   const [logDescription, setLogDescription] = useState("");
+  const [subTasks, setSubTasks] = useState<Issue[]>([]);
+  const [linkedIssues, setLinkedIssues] = useState<any[]>([]);
+  const [subSummary, setSubSummary] = useState("");
+  const [linkTargetId, setLinkTargetId] = useState("");
   const [loading, setLoading] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -42,16 +48,24 @@ export function IssueDetailPage() {
     if (!issueId) return;
     setLoading(true);
     try {
-      const [i, c, a, w] = await Promise.all([
+      const [i, c, a, w, watchers, star, subs, links] = await Promise.all([
         fetchIssue(issueId),
         listComments(issueId),
         listAttachments(issueId),
         listWorkLogs(issueId),
+        listWatchers(issueId),
+        getStar(issueId),
+        listSubTasks(issueId),
+        listLinkedIssues(issueId),
       ]);
       setIssue(i);
       setComments(c);
       setAttachments(a);
       setWorkLogs(w);
+      setWatchers(watchers);
+      setStarred(star.starred);
+      setSubTasks(subs);
+      setLinkedIssues(links);
     } catch (e) {
       console.error(e);
     } finally {
@@ -118,6 +132,70 @@ export function IssueDetailPage() {
     }
   };
 
+  const toggleWatch = async () => {
+    if (!issue) return;
+    try {
+      if (watchers.isWatching) {
+        await unwatchIssue(issue.id);
+        setWatchers((w) => ({ count: w.count - 1, isWatching: false }));
+        notify("Stopped watching");
+      } else {
+        await watchIssue(issue.id);
+        setWatchers((w) => ({ count: w.count + 1, isWatching: true }));
+        notify("Watching issue");
+      }
+    } catch (err) {
+      notify("Watch action failed", "error");
+      console.error(err);
+    }
+  };
+
+  const toggleStar = async () => {
+    if (!issue) return;
+    try {
+      if (starred) {
+        await unstarIssue(issue.id);
+        setStarred(false);
+        notify("Unstarred");
+      } else {
+        await starIssue(issue.id);
+        setStarred(true);
+        notify("Starred");
+      }
+    } catch (err) {
+      notify("Star action failed", "error");
+      console.error(err);
+    }
+  };
+
+  const handleCreateSubTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!issueId || !subSummary.trim()) return;
+    try {
+      const sub = await createSubTask(issueId, subSummary);
+      setSubTasks((prev) => [...prev, sub]);
+      setSubSummary("");
+      notify("Sub-task created");
+    } catch (err) {
+      notify("Failed to create sub-task", "error");
+      console.error(err);
+    }
+  };
+
+  const handleLinkIssue = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!issueId || !linkTargetId.trim()) return;
+    try {
+      const link = await linkIssue(issueId, linkTargetId);
+      setLinkedIssues((prev) => [...prev, link]);
+      setLinkTargetId("");
+      notify("Issue linked");
+    } catch (err) {
+      notify("Failed to link issue", "error");
+      console.error(err);
+    }
+  };
+
   if (loading) return <div className="p-6">Loading issue…</div>;
   if (!issue) return <div className="p-6 text-red-600">Issue not found.</div>;
 
@@ -129,7 +207,25 @@ export function IssueDetailPage() {
           <span className="rounded bg-slate-100 px-2 py-1 text-xs font-bold text-slate-700">{issue.statusName}</span>
           <PriorityBadge priority={issue.priority} />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">{issue.summary}</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-2xl font-bold text-slate-900">{issue.summary}</h1>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleWatch}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 ${watchers.isWatching ? "border-blue-200 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+            >
+              <Eye className="h-4 w-4" />
+              {watchers.isWatching ? "Watching" : "Watch"} {watchers.count > 0 && `(${watchers.count})`}
+            </button>
+            <button
+              onClick={toggleStar}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 ${starred ? "border-amber-200 bg-amber-50 text-amber-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+            >
+              <Star className="h-4 w-4" fill={starred ? "currentColor" : "none"} />
+              {starred ? "Starred" : "Star"}
+            </button>
+          </div>
+        </div>
         <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
           Added <span className="font-medium text-slate-700">{relativeTime(issue.createdAt)}</span> by
           <Avatar id={issue.reporterId} size={5} />
@@ -235,6 +331,52 @@ export function IssueDetailPage() {
               ))}
             </ul>
           </section>
+
+          <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500">Sub-tasks</h2>
+            <form onSubmit={handleCreateSubTask} className="mb-4 flex gap-2">
+              <input
+                value={subSummary}
+                onChange={(e) => setSubSummary(e.target.value)}
+                placeholder="Add a sub-task…"
+                className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+              <button type="submit" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0">
+                Add
+              </button>
+            </form>
+            <ul className="space-y-2">
+              {subTasks.map((s) => (
+                <li key={s.id} className="flex items-center justify-between rounded-lg border-b border-slate-100 p-2 text-sm transition-all duration-150 hover:bg-slate-50">
+                  <span className="text-slate-700">{s.summary}</span>
+                  <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">{s.statusName}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500">Linked issues</h2>
+            <form onSubmit={handleLinkIssue} className="mb-4 flex gap-2">
+              <input
+                value={linkTargetId}
+                onChange={(e) => setLinkTargetId(e.target.value)}
+                placeholder="Issue ID (e.g. i-2)"
+                className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+              <button type="submit" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0">
+                Link
+              </button>
+            </form>
+            <ul className="space-y-2">
+              {linkedIssues.map((l) => (
+                <li key={l.id} className="flex items-center justify-between rounded-lg border-b border-slate-100 p-2 text-sm transition-all duration-150 hover:bg-slate-50">
+                  <span className="text-slate-700">{l.toSummary}</span>
+                  <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">{l.linkType}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
 
         <aside className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
@@ -246,11 +388,71 @@ export function IssueDetailPage() {
             </div>
             <div className="flex items-center justify-between">
               <dt className="flex items-center gap-2 text-slate-500"><User className="h-3.5 w-3.5" /> Assignee</dt>
-              <dd className="flex items-center gap-2 font-medium text-slate-700"><Avatar id={issue.assigneeId} size={5} /> {issue.assigneeId ?? "Unassigned"}</dd>
+              <dd className="flex items-center gap-2">
+                <Avatar id={issue.assigneeId} size={5} />
+                <select
+                  value={issue.assigneeId ?? ""}
+                  onChange={async (e) => {
+                    const assigneeId = e.target.value || null;
+                    const updated = await updateIssue(issue.id, { assigneeId } as any);
+                    setIssue(updated);
+                    notify("Assignee updated");
+                  }}
+                  className="rounded border border-slate-200 bg-white px-2 py-1 text-sm text-slate-700 outline-none focus:border-blue-500"
+                >
+                  <option value="">Unassigned</option>
+                  <option value="u-1">Alice</option>
+                  <option value="u-2">Bob</option>
+                  <option value="u-3">Charlie</option>
+                </select>
+              </dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="flex items-center gap-2 text-slate-500"><Flag className="h-3.5 w-3.5" /> Priority</dt>
-              <dd><PriorityBadge priority={issue.priority} /></dd>
+              <dd>
+                <select
+                  value={issue.priority ?? ""}
+                  onChange={async (e) => {
+                    const priority = e.target.value || null;
+                    const updated = await updateIssue(issue.id, { priority } as any);
+                    setIssue(updated);
+                    notify("Priority updated");
+                  }}
+                  className="rounded border border-slate-200 bg-white px-2 py-1 text-sm text-slate-700 outline-none focus:border-blue-500"
+                >
+                  <option value="">—</option>
+                  <option value="Lowest">Lowest</option>
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                  <option value="Highest">Highest</option>
+                </select>
+              </dd>
+            </div>
+            <div className="flex items-center justify-between">
+              <dt className="flex items-center gap-2 text-slate-500"><Calendar className="h-3.5 w-3.5" /> Status</dt>
+              <dd>
+                <select
+                  value={issue.statusName ?? ""}
+                  onChange={async (e) => {
+                    const statusMap: Record<string, { name: string; category: string }> = {
+                      "To Do": { name: "To Do", category: "TODO" },
+                      "In Progress": { name: "In Progress", category: "IN_PROGRESS" },
+                      "Done": { name: "Done", category: "DONE" },
+                    };
+                    const choice = statusMap[e.target.value];
+                    if (!choice) return;
+                    const updated = await updateIssue(issue.id, { statusName: choice.name, statusCategory: choice.category } as any);
+                    setIssue(updated);
+                    notify("Status updated");
+                  }}
+                  className="rounded border border-slate-200 bg-white px-2 py-1 text-sm text-slate-700 outline-none focus:border-blue-500"
+                >
+                  <option value="To Do">To Do</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Done">Done</option>
+                </select>
+              </dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="flex items-center gap-2 text-slate-500"><Calendar className="h-3.5 w-3.5" /> Updated</dt>
