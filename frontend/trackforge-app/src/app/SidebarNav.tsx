@@ -8,6 +8,12 @@ import {
   BarChart3,
   Settings,
   Users,
+  Search,
+  Bell,
+  Shield,
+  HelpCircle,
+  User,
+  Clock,
 } from "lucide-react";
 
 function SidebarItem({
@@ -56,8 +62,10 @@ export function SidebarNav() {
       <SidebarSection title="TrackForge">
         <SidebarItem to="/" icon={Home} label="Your work" />
         <SidebarItem to="/projects" icon={Grid3X3} label="Projects" />
+        <SidebarItem to="/search" icon={Search} label="Search" />
         <SidebarItem to="/filters" icon={Filter} label="Filters" />
         <SidebarItem to="/dashboards" icon={Layout} label="Dashboards" />
+        <SidebarItem to="/notifications" icon={Bell} label="Notifications" />
       </SidebarSection>
 
       {projectId && (
@@ -65,14 +73,20 @@ export function SidebarNav() {
           <SidebarItem to={`/projects/${projectId}/board`} icon={Layout} label="Board" />
           <SidebarItem to={`/projects/${projectId}/issues`} icon={List} label="Issues" />
           <SidebarItem to={`/projects/${projectId}/backlog`} icon={List} label="Backlog" />
+          <SidebarItem to={`/projects/${projectId}/sprints`} icon={Clock} label="Sprints" />
           <SidebarItem to={`/projects/${projectId}/reports`} icon={BarChart3} label="Reports" />
-          <SidebarItem to={`/projects/${projectId}/settings`} icon={Settings} label="Project settings" />
         </SidebarSection>
       )}
 
       <SidebarSection title="Admin">
         <SidebarItem to="/people" icon={Users} label="People" />
+        <SidebarItem to="/admin/audit-log" icon={Shield} label="Audit log" />
         <SidebarItem to="/settings" icon={Settings} label="Settings" />
+      </SidebarSection>
+
+      <SidebarSection title="Account">
+        <SidebarItem to="/profile" icon={User} label="Profile" />
+        <SidebarItem to="/help" icon={HelpCircle} label="Help" />
       </SidebarSection>
     </nav>
   );
