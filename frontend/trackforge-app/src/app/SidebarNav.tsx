@@ -132,6 +132,38 @@ export function SidebarNav() {
         <SidebarItem to="/migrate" icon={List} label="Migrate" />
         <SidebarItem to="/analytics" icon={List} label="Analytics" />
       </SidebarSection>
+      <SidebarSection title="More 3">
+        <SidebarItem to="/boards" icon={List} label="Boards" />
+        <SidebarItem to="/queues" icon={List} label="Queues" />
+        <SidebarItem to="/canned-responses" icon={List} label="Canned responses" />
+        <SidebarItem to="/request-types" icon={List} label="Request types" />
+        <SidebarItem to="/portal" icon={List} label="Portal" />
+        <SidebarItem to="/surveys" icon={List} label="Surveys" />
+        <SidebarItem to="/knowledge-base" icon={List} label="Knowledge base" />
+        <SidebarItem to="/reports-builder" icon={List} label="Reports builder" />
+        <SidebarItem to="/dashboard-builder" icon={List} label="Dashboard builder" />
+        <SidebarItem to="/schemes" icon={List} label="Schemes" />
+        <SidebarItem to="/field-configs" icon={List} label="Field configs" />
+        <SidebarItem to="/screens" icon={List} label="Screens" />
+        <SidebarItem to="/notifications-hub" icon={List} label="Notifications hub" />
+        <SidebarItem to="/subscriptions" icon={List} label="Subscriptions" />
+        <SidebarItem to="/mentions" icon={List} label="Mentions" />
+        <SidebarItem to="/watchers" icon={List} label="Watchers" />
+        <SidebarItem to="/votes" icon={List} label="Votes" />
+        <SidebarItem to="/flags" icon={List} label="Flags" />
+        <SidebarItem to="/bookmarks" icon={List} label="Bookmarks" />
+        <SidebarItem to="/trash" icon={List} label="Trash" />
+        <SidebarItem to="/recycle-bin" icon={List} label="Recycle bin" />
+        <SidebarItem to="/copy" icon={List} label="Copy" />
+        <SidebarItem to="/move" icon={List} label="Move" />
+        <SidebarItem to="/bulk-edit" icon={List} label="Bulk edit" />
+        <SidebarItem to="/link" icon={List} label="Link" />
+        <SidebarItem to="/clone" icon={List} label="Clone" />
+        <SidebarItem to="/history" icon={List} label="History" />
+        <SidebarItem to="/activity" icon={List} label="Activity" />
+        <SidebarItem to="/drafts" icon={List} label="Drafts" />
+        <SidebarItem to="/reminders" icon={List} label="Reminders" />
+      </SidebarSection>
     </nav>
   );
 }

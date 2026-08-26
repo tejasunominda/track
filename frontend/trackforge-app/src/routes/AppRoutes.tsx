@@ -1,4 +1,34 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { BoardsPage } from "@/features/boards/pages/BoardsPage";
+import { QueuesPage } from "@/features/queues/pages/QueuesPage";
+import { CannedResponsesPage } from "@/features/canned-responses/pages/CannedResponsesPage";
+import { RequestTypesPage } from "@/features/request-types/pages/RequestTypesPage";
+import { PortalPage } from "@/features/portal/pages/PortalPage";
+import { SurveysPage } from "@/features/surveys/pages/SurveysPage";
+import { KnowledgeBasePage } from "@/features/knowledge-base/pages/KnowledgeBasePage";
+import { ReportsBuilderPage } from "@/features/reports-builder/pages/ReportsBuilderPage";
+import { DashboardBuilderPage } from "@/features/dashboard-builder/pages/DashboardBuilderPage";
+import { SchemesPage } from "@/features/schemes/pages/SchemesPage";
+import { FieldConfigsPage } from "@/features/field-configs/pages/FieldConfigsPage";
+import { ScreensPage } from "@/features/screens/pages/ScreensPage";
+import { NotificationsHubPage } from "@/features/notifications-hub/pages/NotificationsHubPage";
+import { SubscriptionsPage } from "@/features/subscriptions/pages/SubscriptionsPage";
+import { MentionsPage } from "@/features/mentions/pages/MentionsPage";
+import { WatchersPage } from "@/features/watchers/pages/WatchersPage";
+import { VotesPage } from "@/features/votes/pages/VotesPage";
+import { FlagsPage } from "@/features/flags/pages/FlagsPage";
+import { BookmarksPage } from "@/features/bookmarks/pages/BookmarksPage";
+import { TrashPage } from "@/features/trash/pages/TrashPage";
+import { RecycleBinPage } from "@/features/recycle-bin/pages/RecycleBinPage";
+import { CopyPage } from "@/features/copy/pages/CopyPage";
+import { MovePage } from "@/features/move/pages/MovePage";
+import { BulkEditPage } from "@/features/bulk-edit/pages/BulkEditPage";
+import { LinkPage } from "@/features/link/pages/LinkPage";
+import { ClonePage } from "@/features/clone/pages/ClonePage";
+import { HistoryPage } from "@/features/history/pages/HistoryPage";
+import { ActivityPage } from "@/features/activity/pages/ActivityPage";
+import { DraftsPage } from "@/features/drafts/pages/DraftsPage";
+import { RemindersPage } from "@/features/reminders/pages/RemindersPage";
 import { TeamsPage } from "@/features/teams/pages/TeamsPage";
 import { GoalsPage } from "@/features/goals/pages/GoalsPage";
 import { FormsPage } from "@/features/forms/pages/FormsPage";
@@ -106,6 +136,36 @@ export function AppRoutes() {
         <Route path="export" element={<ExportPage />} />
         <Route path="archive" element={<ArchivePage />} />
         <Route path="issues/:issueId" element={<IssueDetailPage />} />
+        <Route path="boards" element={<BoardsPage />} />
+        <Route path="queues" element={<QueuesPage />} />
+        <Route path="canned-responses" element={<CannedResponsesPage />} />
+        <Route path="request-types" element={<RequestTypesPage />} />
+        <Route path="portal" element={<PortalPage />} />
+        <Route path="surveys" element={<SurveysPage />} />
+        <Route path="knowledge-base" element={<KnowledgeBasePage />} />
+        <Route path="reports-builder" element={<ReportsBuilderPage />} />
+        <Route path="dashboard-builder" element={<DashboardBuilderPage />} />
+        <Route path="schemes" element={<SchemesPage />} />
+        <Route path="field-configs" element={<FieldConfigsPage />} />
+        <Route path="screens" element={<ScreensPage />} />
+        <Route path="notifications-hub" element={<NotificationsHubPage />} />
+        <Route path="subscriptions" element={<SubscriptionsPage />} />
+        <Route path="mentions" element={<MentionsPage />} />
+        <Route path="watchers" element={<WatchersPage />} />
+        <Route path="votes" element={<VotesPage />} />
+        <Route path="flags" element={<FlagsPage />} />
+        <Route path="bookmarks" element={<BookmarksPage />} />
+        <Route path="trash" element={<TrashPage />} />
+        <Route path="recycle-bin" element={<RecycleBinPage />} />
+        <Route path="copy" element={<CopyPage />} />
+        <Route path="move" element={<MovePage />} />
+        <Route path="bulk-edit" element={<BulkEditPage />} />
+        <Route path="link" element={<LinkPage />} />
+        <Route path="clone" element={<ClonePage />} />
+        <Route path="history" element={<HistoryPage />} />
+        <Route path="activity" element={<ActivityPage />} />
+        <Route path="drafts" element={<DraftsPage />} />
+        <Route path="reminders" element={<RemindersPage />} />
         <Route path="teams" element={<TeamsPage />} />
         <Route path="goals" element={<GoalsPage />} />
         <Route path="forms" element={<FormsPage />} />
