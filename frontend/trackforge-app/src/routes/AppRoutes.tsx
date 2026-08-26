@@ -1,4 +1,34 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { WikiPage } from "@/features/wiki/pages/WikiPage";
+import { DocumentsPage } from "@/features/documents/pages/DocumentsPage";
+import { FilesPage } from "@/features/files/pages/FilesPage";
+import { ImagesPage } from "@/features/images/pages/ImagesPage";
+import { DrawingsPage } from "@/features/drawings/pages/DrawingsPage";
+import { MindMapPage } from "@/features/mind-map/pages/MindMapPage";
+import { WhiteboardPage } from "@/features/whiteboard/pages/WhiteboardPage";
+import { SpreadsheetsPage } from "@/features/spreadsheets/pages/SpreadsheetsPage";
+import { PresentationsPage } from "@/features/presentations/pages/PresentationsPage";
+import { MeetingNotesPage } from "@/features/meeting-notes/pages/MeetingNotesPage";
+import { RetrospectivesPage } from "@/features/retrospectives/pages/RetrospectivesPage";
+import { StandupsPage } from "@/features/standups/pages/StandupsPage";
+import { OneOnOnePage } from "@/features/one-on-one/pages/OneOnOnePage";
+import { PerformanceReviewPage } from "@/features/performance-review/pages/PerformanceReviewPage";
+import { CareerPathPage } from "@/features/career-path/pages/CareerPathPage";
+import { SkillsMatrixPage } from "@/features/skills-matrix/pages/SkillsMatrixPage";
+import { OrgChartPage } from "@/features/org-chart/pages/OrgChartPage";
+import { JobDescriptionsPage } from "@/features/job-descriptions/pages/JobDescriptionsPage";
+import { HiringPage } from "@/features/hiring/pages/HiringPage";
+import { OnboardingPage } from "@/features/onboarding/pages/OnboardingPage";
+import { OffboardingPage } from "@/features/offboarding/pages/OffboardingPage";
+import { VacationPage } from "@/features/vacation/pages/VacationPage";
+import { ExpensesPage } from "@/features/expenses/pages/ExpensesPage";
+import { InvoicesPage } from "@/features/invoices/pages/InvoicesPage";
+import { ContractsPage } from "@/features/contracts/pages/ContractsPage";
+import { VendorsPage } from "@/features/vendors/pages/VendorsPage";
+import { ProcurementPage } from "@/features/procurement/pages/ProcurementPage";
+import { InventoryPage } from "@/features/inventory/pages/InventoryPage";
+import { HardwarePage } from "@/features/hardware/pages/HardwarePage";
+import { SoftwarePage } from "@/features/software/pages/SoftwarePage";
 import { GanttPage } from "@/features/gantt/pages/GanttPage";
 import { TimeSheetsPage } from "@/features/time-sheets/pages/TimeSheetsPage";
 import { ResourcePlanningPage } from "@/features/resource-planning/pages/ResourcePlanningPage";
@@ -166,6 +196,36 @@ export function AppRoutes() {
         <Route path="export" element={<ExportPage />} />
         <Route path="archive" element={<ArchivePage />} />
         <Route path="issues/:issueId" element={<IssueDetailPage />} />
+        <Route path="wiki" element={<WikiPage />} />
+        <Route path="documents" element={<DocumentsPage />} />
+        <Route path="files" element={<FilesPage />} />
+        <Route path="images" element={<ImagesPage />} />
+        <Route path="drawings" element={<DrawingsPage />} />
+        <Route path="mind-map" element={<MindMapPage />} />
+        <Route path="whiteboard" element={<WhiteboardPage />} />
+        <Route path="spreadsheets" element={<SpreadsheetsPage />} />
+        <Route path="presentations" element={<PresentationsPage />} />
+        <Route path="meeting-notes" element={<MeetingNotesPage />} />
+        <Route path="retrospectives" element={<RetrospectivesPage />} />
+        <Route path="standups" element={<StandupsPage />} />
+        <Route path="one-on-one" element={<OneOnOnePage />} />
+        <Route path="performance-review" element={<PerformanceReviewPage />} />
+        <Route path="career-path" element={<CareerPathPage />} />
+        <Route path="skills-matrix" element={<SkillsMatrixPage />} />
+        <Route path="org-chart" element={<OrgChartPage />} />
+        <Route path="job-descriptions" element={<JobDescriptionsPage />} />
+        <Route path="hiring" element={<HiringPage />} />
+        <Route path="onboarding" element={<OnboardingPage />} />
+        <Route path="offboarding" element={<OffboardingPage />} />
+        <Route path="vacation" element={<VacationPage />} />
+        <Route path="expenses" element={<ExpensesPage />} />
+        <Route path="invoices" element={<InvoicesPage />} />
+        <Route path="contracts" element={<ContractsPage />} />
+        <Route path="vendors" element={<VendorsPage />} />
+        <Route path="procurement" element={<ProcurementPage />} />
+        <Route path="inventory" element={<InventoryPage />} />
+        <Route path="hardware" element={<HardwarePage />} />
+        <Route path="software" element={<SoftwarePage />} />
         <Route path="gantt" element={<GanttPage />} />
         <Route path="time-sheets" element={<TimeSheetsPage />} />
         <Route path="resource-planning" element={<ResourcePlanningPage />} />

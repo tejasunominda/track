@@ -196,6 +196,38 @@ export function SidebarNav() {
         <SidebarItem to="/checklists" icon={List} label="Checklists" />
         <SidebarItem to="/task-dependencies" icon={List} label="Task dependencies" />
       </SidebarSection>
+      <SidebarSection title="More 5">
+        <SidebarItem to="/wiki" icon={List} label="Wiki" />
+        <SidebarItem to="/documents" icon={List} label="Documents" />
+        <SidebarItem to="/files" icon={List} label="Files" />
+        <SidebarItem to="/images" icon={List} label="Images" />
+        <SidebarItem to="/drawings" icon={List} label="Drawings" />
+        <SidebarItem to="/mind-map" icon={List} label="Mind map" />
+        <SidebarItem to="/whiteboard" icon={List} label="Whiteboard" />
+        <SidebarItem to="/spreadsheets" icon={List} label="Spreadsheets" />
+        <SidebarItem to="/presentations" icon={List} label="Presentations" />
+        <SidebarItem to="/meeting-notes" icon={List} label="Meeting notes" />
+        <SidebarItem to="/retrospectives" icon={List} label="Retrospectives" />
+        <SidebarItem to="/standups" icon={List} label="Standups" />
+        <SidebarItem to="/one-on-one" icon={List} label="1:1s" />
+        <SidebarItem to="/performance-review" icon={List} label="Performance review" />
+        <SidebarItem to="/career-path" icon={List} label="Career path" />
+        <SidebarItem to="/skills-matrix" icon={List} label="Skills matrix" />
+        <SidebarItem to="/org-chart" icon={List} label="Org chart" />
+        <SidebarItem to="/job-descriptions" icon={List} label="Job descriptions" />
+        <SidebarItem to="/hiring" icon={List} label="Hiring" />
+        <SidebarItem to="/onboarding" icon={List} label="Onboarding" />
+        <SidebarItem to="/offboarding" icon={List} label="Offboarding" />
+        <SidebarItem to="/vacation" icon={List} label="Vacation" />
+        <SidebarItem to="/expenses" icon={List} label="Expenses" />
+        <SidebarItem to="/invoices" icon={List} label="Invoices" />
+        <SidebarItem to="/contracts" icon={List} label="Contracts" />
+        <SidebarItem to="/vendors" icon={List} label="Vendors" />
+        <SidebarItem to="/procurement" icon={List} label="Procurement" />
+        <SidebarItem to="/inventory" icon={List} label="Inventory" />
+        <SidebarItem to="/hardware" icon={List} label="Hardware" />
+        <SidebarItem to="/software" icon={List} label="Software" />
+      </SidebarSection>
     </nav>
   );
 }
