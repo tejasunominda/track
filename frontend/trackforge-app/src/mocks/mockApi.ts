@@ -1,6 +1,5 @@
 import { ProjectSummary } from "@/features/projects/api/projects";
 import { Issue } from "@/features/issues/types/issue";
-import { BoardState } from "@/features/board/types/board";
 
 const projects: ProjectSummary[] = [
   {
@@ -137,34 +136,6 @@ let attachments = [
   { id: "a-1", issueId: "i-1", uploadedBy: "u-2", fileName: "auth-flow.png", contentType: "image/png", sizeBytes: 124000, scanStatus: "CLEAN", downloadUrl: "#", createdAt: "2025-01-05T10:00:00Z" },
 ];
 
-const board: BoardState = {
-  projectId: "p-1",
-  projectName: "Engineering",
-  columns: [
-    {
-      statusId: "s-todo",
-      statusName: "To Do",
-      statusCategory: "TODO",
-      wipLimit: null,
-      issues: issues.filter((i) => i.statusName === "To Do").map((i) => ({ id: i.id, summary: i.summary, issueTypeName: i.issueTypeName, statusName: i.statusName, statusCategory: i.statusCategory, priority: i.priority, assigneeId: i.assigneeId, reporterId: i.reporterId })),
-    },
-    {
-      statusId: "s-inprogress",
-      statusName: "In Progress",
-      statusCategory: "IN_PROGRESS",
-      wipLimit: 4,
-      issues: issues.filter((i) => i.statusName === "In Progress").map((i) => ({ id: i.id, summary: i.summary, issueTypeName: i.issueTypeName, statusName: i.statusName, statusCategory: i.statusCategory, priority: i.priority, assigneeId: i.assigneeId, reporterId: i.reporterId })),
-    },
-    {
-      statusId: "s-done",
-      statusName: "Done",
-      statusCategory: "DONE",
-      wipLimit: null,
-      issues: issues.filter((i) => i.statusName === "Done").map((i) => ({ id: i.id, summary: i.summary, issueTypeName: i.issueTypeName, statusName: i.statusName, statusCategory: i.statusCategory, priority: i.priority, assigneeId: i.assigneeId, reporterId: i.reporterId })),
-    },
-  ],
-};
-
 const velocity = [
   { sprintId: "sp-1", sprintName: "Sprint 1", committed: 18, completed: 14 },
   { sprintId: "sp-2", sprintName: "Sprint 2", committed: 20, completed: 19 },
@@ -182,6 +153,30 @@ function queryParams(path: string) {
 
 function id() {
   return `id-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function getBoard(projectId: string) {
+  const project = projects.find((p) => p.id === projectId);
+  const projectIssues = issues.filter((i) => i.projectId === projectId);
+  const mapIssue = (i: Issue) => ({
+    id: i.id,
+    summary: i.summary,
+    issueTypeName: i.issueTypeName,
+    statusName: i.statusName,
+    statusCategory: i.statusCategory,
+    priority: i.priority,
+    assigneeId: i.assigneeId,
+    reporterId: i.reporterId,
+  });
+  return {
+    projectId,
+    projectName: project?.name ?? "Unknown",
+    columns: [
+      { statusId: "s-todo", statusName: "To Do", statusCategory: "TODO", wipLimit: null, issues: projectIssues.filter((i) => i.statusName === "To Do").map(mapIssue) },
+      { statusId: "s-inprogress", statusName: "In Progress", statusCategory: "IN_PROGRESS", wipLimit: 4, issues: projectIssues.filter((i) => i.statusName === "In Progress").map(mapIssue) },
+      { statusId: "s-done", statusName: "Done", statusCategory: "DONE", wipLimit: null, issues: projectIssues.filter((i) => i.statusName === "Done").map(mapIssue) },
+    ],
+  };
 }
 
 export async function mockFetch(path: string, init?: RequestInit): Promise<any> {
@@ -202,6 +197,28 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
     return issues.filter((i) => i.projectId === q.projectId).map((i) => ({ ...i }));
   }
 
+  if (clean === "/issues" && method === "POST") {
+    const body = init?.body ? JSON.parse(init.body as string) : {};
+    const issueType = body.issueTypeId ? body.issueTypeId[0].toUpperCase() + body.issueTypeId.slice(1) : "Story";
+    const newIssue: Issue = {
+      id: id(),
+      projectId: body.projectId ?? "p-1",
+      issueTypeName: issueType,
+      statusName: "To Do",
+      statusCategory: "TODO",
+      summary: body.summary ?? "",
+      description: body.description ?? null,
+      reporterId: "u-me",
+      assigneeId: body.assigneeId ?? null,
+      priority: body.priority ?? "Medium",
+      storyPoints: body.storyPoints ?? null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    issues.push(newIssue);
+    return { ...newIssue };
+  }
+
   const issueMatch = clean.match(/^\/issues\/([^\/]+)$/);
   if (issueMatch) {
     const issueId = issueMatch[1];
@@ -210,7 +227,7 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
     if (method === "PUT") {
       const body = init?.body ? JSON.parse(init.body as string) : {};
       if (body.statusId) {
-        const target = board.columns.find((c) => c.statusId === body.statusId);
+        const target = getBoard(issue.projectId).columns.find((c) => c.statusId === body.statusId);
         if (target) {
           issue.statusName = target.statusName;
           issue.statusCategory = target.statusCategory;
@@ -250,7 +267,7 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
 
   if (clean.match(/\/projects\/.+\/board$/)) {
     const pid = clean.split("/")[2];
-    return { ...board, projectId: pid };
+    return getBoard(pid);
   }
 
   if (clean.match(/\/projects\/.+\/issues/)) {

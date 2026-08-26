@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Plus } from "lucide-react";
 import {
   DndContext,
   DragEndEvent,
@@ -11,6 +12,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { fetchBoard, moveIssue } from "@/features/board/api/board";
 import { BoardColumn, BoardIssue, BoardState } from "@/features/board/types/board";
+import { CreateIssueModal } from "@/features/issues/components/CreateIssueModal";
 
 const priorityColor: Record<string, string> = {
   Highest: "bg-red-100 text-red-700 ring-red-200",
@@ -119,14 +121,21 @@ export function BoardPage() {
   const [board, setBoard] = useState<BoardState | null>(null);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<BoardIssue | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
-  useEffect(() => {
+  const loadBoard = () => {
     if (!projectId) return;
+    setLoading(true);
     fetchBoard(projectId)
       .then(setBoard)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [projectId]);
+  };
+
+  useEffect(() => {
+    loadBoard();
+  }, [projectId, refresh]);
 
   const handleDragStart = (e: DragStartEvent) => {
     const issue = e.active.data.current?.issue as BoardIssue | undefined;
@@ -189,7 +198,22 @@ export function BoardPage() {
           <h1 className="text-xl font-bold text-slate-900">{board.projectName}</h1>
           <p className="text-sm text-slate-500">Board</p>
         </div>
+        <button
+          onClick={() => setShowModal(true)}
+          className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0"
+        >
+          <Plus className="h-4 w-4" />
+          Create issue
+        </button>
       </div>
+
+      {showModal && projectId && (
+        <CreateIssueModal
+          projectId={projectId}
+          onClose={() => setShowModal(false)}
+          onCreated={() => setRefresh((r) => !r)}
+        />
+      )}
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex h-[calc(100%-4rem)] gap-3 overflow-x-auto pb-2">
           {board.columns.map((column) => (

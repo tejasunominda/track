@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Search, Plus } from "lucide-react";
 import { listIssues } from "@/features/issues/api/issues";
 import { Issue } from "@/features/issues/types/issue";
+import { CreateIssueModal } from "@/features/issues/components/CreateIssueModal";
 
 const priorityColor: Record<string, string> = {
   Highest: "bg-red-100 text-red-700",
@@ -47,14 +48,17 @@ export function IssuesPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     if (!projectId) return;
+    setLoading(true);
     listIssues(projectId)
       .then(setIssues)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [projectId]);
+  }, [projectId, refresh]);
 
   if (loading) {
     return (
@@ -74,11 +78,22 @@ export function IssuesPage() {
     <div className="h-full bg-slate-50 p-6 animate-fadeIn">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Issues</h1>
-        <button className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0">
+        <button
+          onClick={() => setShowModal(true)}
+          className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0"
+        >
           <Plus className="h-4 w-4" />
           Create issue
         </button>
       </div>
+
+      {showModal && projectId && (
+        <CreateIssueModal
+          projectId={projectId}
+          onClose={() => setShowModal(false)}
+          onCreated={() => setRefresh((r) => !r)}
+        />
+      )}
 
       <div className="mb-4 flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition-all duration-200 focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100">
         <Search className="h-4 w-4 text-slate-400" />
