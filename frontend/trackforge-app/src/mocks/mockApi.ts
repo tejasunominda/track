@@ -266,11 +266,34 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
     return { totalStoryPoints: 20, remainingStoryPoints: 6, completedStoryPoints: 14 };
   }
 
+  let filters = [
+    { id: "f-1", name: "High priority bugs", query: 'type = "Bug" AND priority = "High"' },
+    { id: "f-2", name: "My issues", query: 'assignee = "me" AND status != "Done"' },
+  ];
+
   if (clean === "/search/filters") {
-    return [
-      { id: "f-1", name: "High priority bugs", query: 'type = "Bug" AND priority = "High"' },
-      { id: "f-2", name: "My issues", query: 'assignee = "me" AND status != "Done"' },
-    ];
+    if (method === "POST") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      const newFilter = { id: id(), name: body.name, query: body.query };
+      filters.push(newFilter);
+      return newFilter;
+    }
+    return filters;
+  }
+
+  const filterMatch = clean.match(/^\/search\/filters\/(.+)$/);
+  if (filterMatch) {
+    const filterId = filterMatch[1];
+    if (method === "PUT") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      const f = filters.find((x) => x.id === filterId);
+      if (f) { f.name = body.name; f.query = body.query; }
+      return f ?? { status: 404, error: { message: "Filter not found" } };
+    }
+    if (method === "DELETE") {
+      filters = filters.filter((x) => x.id !== filterId);
+      return { status: 204 };
+    }
   }
 
   throw new Error(`Mock not implemented for ${clean} ${method}`);

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AppShell } from "@/app/AppShell";
 import { BoardPage } from "@/features/board/pages/BoardPage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
+import { FiltersPage } from "@/features/filters/pages/FiltersPage";
 import { IssueDetailPage } from "@/features/issues/pages/IssueDetailPage";
 import { IssuesPage } from "@/features/issues/pages/IssuesPage";
 import { ProjectsPage } from "@/features/projects/pages/ProjectsPage";
@@ -23,6 +24,7 @@ export function AppRoutes() {
         <Route path="projects/:projectId/board" element={<BoardPage />} />
         <Route path="projects/:projectId/issues" element={<IssuesPage />} />
         <Route path="projects/:projectId/reports" element={<ReportsPage />} />
+        <Route path="filters" element={<FiltersPage />} />
         <Route path="issues/:issueId" element={<IssueDetailPage />} />
       </Route>
     </Routes>
