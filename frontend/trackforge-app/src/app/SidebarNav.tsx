@@ -88,6 +88,28 @@ export function SidebarNav() {
         <SidebarItem to="/profile" icon={User} label="Profile" />
         <SidebarItem to="/help" icon={HelpCircle} label="Help" />
       </SidebarSection>
+      <SidebarSection title="More">
+        <SidebarItem to="/labels" icon={List} label="Labels" />
+        <SidebarItem to="/components" icon={List} label="Components" />
+        <SidebarItem to="/releases" icon={List} label="Releases" />
+        <SidebarItem to="/workflows" icon={List} label="Workflows" />
+        <SidebarItem to="/issue-types" icon={List} label="Issue types" />
+        <SidebarItem to="/permissions" icon={List} label="Permissions" />
+        <SidebarItem to="/billing" icon={List} label="Billing" />
+        <SidebarItem to="/integrations" icon={List} label="Integrations" />
+        <SidebarItem to="/service-desk" icon={List} label="Service desk" />
+        <SidebarItem to="/portfolio" icon={List} label="Portfolio" />
+        <SidebarItem to="/roadmap" icon={List} label="Roadmap" />
+        <SidebarItem to="/epics" icon={List} label="Epics" />
+        <SidebarItem to="/versions" icon={List} label="Versions" />
+        <SidebarItem to="/time-tracking" icon={List} label="Time tracking" />
+        <SidebarItem to="/s-l-a" icon={List} label="SLA policies" />
+        <SidebarItem to="/custom-fields" icon={List} label="Custom fields" />
+        <SidebarItem to="/automation" icon={List} label="Automation" />
+        <SidebarItem to="/import" icon={List} label="Import" />
+        <SidebarItem to="/export" icon={List} label="Export" />
+        <SidebarItem to="/archive" icon={List} label="Archive" />
+      </SidebarSection>
     </nav>
   );
 }

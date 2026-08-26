@@ -1,4 +1,24 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { LabelsPage } from "@/features/labels/pages/LabelsPage";
+import { ComponentsPage } from "@/features/components/pages/ComponentsPage";
+import { ReleasesPage } from "@/features/releases/pages/ReleasesPage";
+import { WorkflowsPage } from "@/features/workflows/pages/WorkflowsPage";
+import { IssueTypesPage } from "@/features/issue-types/pages/IssueTypesPage";
+import { PermissionsPage } from "@/features/permissions/pages/PermissionsPage";
+import { BillingPage } from "@/features/billing/pages/BillingPage";
+import { IntegrationsPage } from "@/features/integrations/pages/IntegrationsPage";
+import { ServiceDeskPage } from "@/features/service-desk/pages/ServiceDeskPage";
+import { PortfolioPage } from "@/features/portfolio/pages/PortfolioPage";
+import { RoadmapPage } from "@/features/roadmap/pages/RoadmapPage";
+import { EpicsPage } from "@/features/epics/pages/EpicsPage";
+import { VersionsPage } from "@/features/versions/pages/VersionsPage";
+import { TimeTrackingPage } from "@/features/time-tracking/pages/TimeTrackingPage";
+import { SLAPage } from "@/features/s-l-a/pages/SLAPage";
+import { CustomFieldsPage } from "@/features/custom-fields/pages/CustomFieldsPage";
+import { AutomationPage } from "@/features/automation/pages/AutomationPage";
+import { ImportPage } from "@/features/import/pages/ImportPage";
+import { ExportPage } from "@/features/export/pages/ExportPage";
+import { ArchivePage } from "@/features/archive/pages/ArchivePage";
 import { AppShell } from "@/app/AppShell";
 import { AuditLogPage } from "@/features/admin/pages/AuditLogPage";
 import { BacklogPage } from "@/features/backlog/pages/BacklogPage";
@@ -45,6 +65,26 @@ export function AppRoutes() {
         <Route path="admin/audit-log" element={<AuditLogPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="help" element={<HelpPage />} />
+        <Route path="labels" element={<LabelsPage />} />
+        <Route path="components" element={<ComponentsPage />} />
+        <Route path="releases" element={<ReleasesPage />} />
+        <Route path="workflows" element={<WorkflowsPage />} />
+        <Route path="issue-types" element={<IssueTypesPage />} />
+        <Route path="permissions" element={<PermissionsPage />} />
+        <Route path="billing" element={<BillingPage />} />
+        <Route path="integrations" element={<IntegrationsPage />} />
+        <Route path="service-desk" element={<ServiceDeskPage />} />
+        <Route path="portfolio" element={<PortfolioPage />} />
+        <Route path="roadmap" element={<RoadmapPage />} />
+        <Route path="epics" element={<EpicsPage />} />
+        <Route path="versions" element={<VersionsPage />} />
+        <Route path="time-tracking" element={<TimeTrackingPage />} />
+        <Route path="s-l-a" element={<SLAPage />} />
+        <Route path="custom-fields" element={<CustomFieldsPage />} />
+        <Route path="automation" element={<AutomationPage />} />
+        <Route path="import" element={<ImportPage />} />
+        <Route path="export" element={<ExportPage />} />
+        <Route path="archive" element={<ArchivePage />} />
         <Route path="issues/:issueId" element={<IssueDetailPage />} />
       </Route>
     </Routes>
