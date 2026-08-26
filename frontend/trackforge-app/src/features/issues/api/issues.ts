@@ -50,3 +50,7 @@ export async function createWorkLog(issueId: string, timeSpentMinutes: number, d
     body: JSON.stringify({ timeSpentMinutes, description }),
   });
 }
+
+export async function deleteIssue(issueId: string): Promise<void> {
+  return apiFetch<void>(`/issues/${issueId}`, { method: "DELETE" });
+}

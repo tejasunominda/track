@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Paperclip, MessageSquare, User, Calendar, Flag, Clock } from "lucide-react";
-import { createWorkLog, fetchIssue, listAttachments, listComments, listWorkLogs, postComment, uploadAttachment } from "@/features/issues/api/issues";
+import { useToast } from "@/app/ToastProvider";
+import { Avatar } from "@/components/Avatar";
+import { relativeTime } from "@/lib/date";
+import { createWorkLog, deleteIssue, fetchIssue, listAttachments, listComments, listWorkLogs, postComment, uploadAttachment } from "@/features/issues/api/issues";
 import { Attachment, Issue, IssueComment, WorkLog } from "@/features/issues/types/issue";
 
 const priorityColor: Record<string, string> = {
@@ -23,6 +26,8 @@ function PriorityBadge({ priority }: { priority: string | null }) {
 
 export function IssueDetailPage() {
   const { issueId } = useParams<{ issueId: string }>();
+  const navigate = useNavigate();
+  const { notify } = useToast();
   const [issue, setIssue] = useState<Issue | null>(null);
   const [comments, setComments] = useState<IssueComment[]>([]);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -65,7 +70,9 @@ export function IssueDetailPage() {
       const comment = await postComment(issueId, commentBody);
       setCommentBody("");
       setComments((prev) => [...prev, { ...comment, authorName: comment.authorName ?? "You" }]);
+      notify("Comment posted");
     } catch (err) {
+      notify("Failed to post comment", "error");
       console.error(err);
     }
   };
@@ -76,7 +83,9 @@ export function IssueDetailPage() {
     try {
       const a = await uploadAttachment(issueId, file);
       setAttachments((prev) => [...prev, a]);
+      notify("Attachment uploaded");
     } catch (err) {
+      notify("Upload failed", "error");
       console.error(err);
     }
   };
@@ -90,7 +99,21 @@ export function IssueDetailPage() {
       setWorkLogs((prev) => [...prev, log]);
       setLogMinutes("");
       setLogDescription("");
+      notify(`Logged ${minutes}m`);
     } catch (err) {
+      notify("Failed to log work", "error");
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!issue || !window.confirm("Delete this issue?")) return;
+    try {
+      await deleteIssue(issue.id);
+      notify("Issue deleted");
+      navigate(`/projects/${issue.projectId}/issues`);
+    } catch (err) {
+      notify("Failed to delete", "error");
       console.error(err);
     }
   };
@@ -107,8 +130,9 @@ export function IssueDetailPage() {
           <PriorityBadge priority={issue.priority} />
         </div>
         <h1 className="text-2xl font-bold text-slate-900">{issue.summary}</h1>
-        <div className="mt-1 text-sm text-slate-500">
-          Added by <span className="font-medium text-slate-700">{issue.reporterId ?? "unknown"}</span> on {new Date(issue.createdAt).toLocaleDateString()}
+        <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
+          Added <span className="font-medium text-slate-700">{relativeTime(issue.createdAt)}</span> by
+          <Avatar id={issue.reporterId} size={5} />
         </div>
         <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{issue.description}</p>
       </div>
@@ -134,8 +158,13 @@ export function IssueDetailPage() {
             <div className="space-y-3">
               {comments.map((c) => (
                 <div key={c.id} className="rounded-lg bg-slate-50 p-3 transition-all duration-150 hover:bg-blue-50/30">
-                  <div className="text-xs font-bold text-slate-600">{c.authorName ?? c.authorId}</div>
-                  <div className="mt-0.5 text-[10px] text-slate-400">{new Date(c.createdAt).toLocaleString()}</div>
+                  <div className="flex items-center gap-2">
+                    <Avatar id={c.authorId} size={5} />
+                    <div>
+                      <div className="text-xs font-bold text-slate-600">{c.authorName ?? c.authorId}</div>
+                      <div className="text-[10px] text-slate-400">{relativeTime(c.createdAt)}</div>
+                    </div>
+                  </div>
                   <p className="mt-2 text-sm text-slate-800">{c.body}</p>
                 </div>
               ))}
@@ -194,9 +223,12 @@ export function IssueDetailPage() {
             <ul className="space-y-2">
               {workLogs.map((w) => (
                 <li key={w.id} className="flex items-center justify-between rounded-lg border-b border-slate-100 p-2 text-sm transition-all duration-150 hover:bg-slate-50">
-                  <div>
-                    <div className="font-medium text-slate-800">{w.authorName ?? w.authorId} – {w.description ?? "Work logged"}</div>
-                    <div className="text-[10px] text-slate-400">{new Date(w.createdAt).toLocaleString()}</div>
+                  <div className="flex items-center gap-2">
+                    <Avatar id={w.authorId} size={5} />
+                    <div>
+                      <div className="font-medium text-slate-800">{w.authorName ?? w.authorId} – {w.description ?? "Work logged"}</div>
+                      <div className="text-[10px] text-slate-400">{relativeTime(w.createdAt)}</div>
+                    </div>
                   </div>
                   <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">{w.timeSpentMinutes}m</span>
                 </li>
@@ -210,11 +242,11 @@ export function IssueDetailPage() {
           <dl className="space-y-4 text-sm">
             <div className="flex items-center justify-between">
               <dt className="flex items-center gap-2 text-slate-500"><User className="h-3.5 w-3.5" /> Reporter</dt>
-              <dd className="font-medium text-slate-700">{issue.reporterId ?? "—"}</dd>
+              <dd className="flex items-center gap-2 font-medium text-slate-700"><Avatar id={issue.reporterId} size={5} /> {issue.reporterId ?? "—"}</dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="flex items-center gap-2 text-slate-500"><User className="h-3.5 w-3.5" /> Assignee</dt>
-              <dd className="font-medium text-slate-700">{issue.assigneeId ?? "Unassigned"}</dd>
+              <dd className="flex items-center gap-2 font-medium text-slate-700"><Avatar id={issue.assigneeId} size={5} /> {issue.assigneeId ?? "Unassigned"}</dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="flex items-center gap-2 text-slate-500"><Flag className="h-3.5 w-3.5" /> Priority</dt>
@@ -222,9 +254,16 @@ export function IssueDetailPage() {
             </div>
             <div className="flex items-center justify-between">
               <dt className="flex items-center gap-2 text-slate-500"><Calendar className="h-3.5 w-3.5" /> Updated</dt>
-              <dd className="font-medium text-slate-700">{new Date(issue.updatedAt).toLocaleDateString()}</dd>
+              <dd className="font-medium text-slate-700">{relativeTime(issue.updatedAt)}</dd>
             </div>
           </dl>
+
+          <button
+            onClick={handleDelete}
+            className="mt-6 w-full rounded-lg border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-600 transition-all duration-150 hover:-translate-y-0.5 hover:bg-rose-50"
+          >
+            Delete issue
+          </button>
         </aside>
       </div>
     </div>

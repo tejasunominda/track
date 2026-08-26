@@ -10,6 +10,7 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { Avatar } from "@/components/Avatar";
 import { fetchBoard, moveIssue } from "@/features/board/api/board";
 import { BoardColumn, BoardIssue, BoardState } from "@/features/board/types/board";
 import { CreateIssueModal } from "@/features/issues/components/CreateIssueModal";
@@ -45,15 +46,6 @@ function TypeIcon({ type }: { type: string | null }) {
   );
 }
 
-function Avatar({ id }: { id: string | null }) {
-  if (!id) return <div className="h-6 w-6 rounded-full bg-slate-100 text-center text-[10px] leading-6 text-slate-500">—</div>;
-  return (
-    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-[10px] font-bold text-white shadow-sm">
-      {id.slice(0, 1).toUpperCase()}
-    </div>
-  );
-}
-
 function IssueCard({ issue }: { issue: BoardIssue }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: issue.id,
@@ -80,7 +72,7 @@ function IssueCard({ issue }: { issue: BoardIssue }) {
       </div>
       <div className="mt-3 flex items-center justify-between">
         <span className="text-[10px] font-mono text-slate-400">{issue.id.slice(0, 8)}</span>
-        <Avatar id={issue.assigneeId} />
+        <Avatar id={issue.assigneeId} size={6} />
       </div>
     </div>
   );

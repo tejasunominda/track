@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, Plus } from "lucide-react";
+import { useToast } from "@/app/ToastProvider";
 import { createIssue } from "@/features/issues/api/issues";
 import { CreateIssueInput } from "@/features/issues/types/issue";
 
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export function CreateIssueModal({ projectId, onClose, onCreated }: Props) {
+  const { notify } = useToast();
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState<CreateIssueInput>({
     projectId,
@@ -41,8 +43,10 @@ export function CreateIssueModal({ projectId, onClose, onCreated }: Props) {
     try {
       await createIssue(input);
       onCreated();
+      notify(`Issue created: ${input.summary}`);
       onClose();
     } catch (err) {
+      notify("Failed to create issue", "error");
       console.error(err);
     } finally {
       setLoading(false);

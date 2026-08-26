@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Bell, ChevronDown, Folder, HelpCircle, Plus, Search, X } from "lucide-react";
+import { Avatar } from "@/components/Avatar";
 import { apiFetch } from "@/api/client";
 
 interface SearchIssue {
@@ -220,8 +221,8 @@ export function GlobalNav() {
         <button className="rounded-lg p-2 text-slate-500 transition-all duration-150 hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-900">
           <HelpCircle className="h-5 w-5" />
         </button>
-        <div className="ml-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-slate-200 to-slate-300 text-sm font-semibold text-slate-600 shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md">
-          U
+        <div className="ml-2 cursor-pointer transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md">
+          <Avatar id="u-me" size={9} />
         </div>
       </div>
     </header>

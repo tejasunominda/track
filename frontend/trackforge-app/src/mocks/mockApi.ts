@@ -226,8 +226,13 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
   const issueMatch = clean.match(/^\/issues\/([^\/]+)$/);
   if (issueMatch) {
     const issueId = issueMatch[1];
-    const issue = issues.find((i) => i.id === issueId);
+    const idx = issues.findIndex((i) => i.id === issueId);
+    const issue = issues[idx];
     if (!issue) return { status: 404, error: { message: "Not found" } };
+    if (method === "DELETE") {
+      issues.splice(idx, 1);
+      return { status: 204 };
+    }
     if (method === "PUT") {
       const body = init?.body ? JSON.parse(init.body as string) : {};
       if (body.statusId) {
