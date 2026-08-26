@@ -164,6 +164,38 @@ export function SidebarNav() {
         <SidebarItem to="/drafts" icon={List} label="Drafts" />
         <SidebarItem to="/reminders" icon={List} label="Reminders" />
       </SidebarSection>
+      <SidebarSection title="More 4">
+        <SidebarItem to="/gantt" icon={List} label="Gantt" />
+        <SidebarItem to="/time-sheets" icon={List} label="Time sheets" />
+        <SidebarItem to="/resource-planning" icon={List} label="Resource planning" />
+        <SidebarItem to="/risk-register" icon={List} label="Risk register" />
+        <SidebarItem to="/change-log" icon={List} label="Change log" />
+        <SidebarItem to="/release-notes" icon={List} label="Release notes" />
+        <SidebarItem to="/product-requirements" icon={List} label="Product requirements" />
+        <SidebarItem to="/test-plans" icon={List} label="Test plans" />
+        <SidebarItem to="/test-cases" icon={List} label="Test cases" />
+        <SidebarItem to="/test-runs" icon={List} label="Test runs" />
+        <SidebarItem to="/environments" icon={List} label="Environments" />
+        <SidebarItem to="/deployments" icon={List} label="Deployments" />
+        <SidebarItem to="/feature-flags" icon={List} label="Feature flags" />
+        <SidebarItem to="/a-b-tests" icon={List} label="A/B tests" />
+        <SidebarItem to="/metrics" icon={List} label="Metrics" />
+        <SidebarItem to="/alerts" icon={List} label="Alerts" />
+        <SidebarItem to="/incidents" icon={List} label="Incidents" />
+        <SidebarItem to="/on-call" icon={List} label="On-call" />
+        <SidebarItem to="/postmortems" icon={List} label="Postmortems" />
+        <SidebarItem to="/service-catalog" icon={List} label="Service catalog" />
+        <SidebarItem to="/runbooks" icon={List} label="Runbooks" />
+        <SidebarItem to="/macros" icon={List} label="Macros" />
+        <SidebarItem to="/quick-filters" icon={List} label="Quick filters" />
+        <SidebarItem to="/color-schemes" icon={List} label="Color schemes" />
+        <SidebarItem to="/email-templates" icon={List} label="Email templates" />
+        <SidebarItem to="/in-app-messages" icon={List} label="In-app messages" />
+        <SidebarItem to="/tasks" icon={List} label="Tasks" />
+        <SidebarItem to="/subtasks" icon={List} label="Subtasks" />
+        <SidebarItem to="/checklists" icon={List} label="Checklists" />
+        <SidebarItem to="/task-dependencies" icon={List} label="Task dependencies" />
+      </SidebarSection>
     </nav>
   );
 }

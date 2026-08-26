@@ -1,4 +1,34 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { GanttPage } from "@/features/gantt/pages/GanttPage";
+import { TimeSheetsPage } from "@/features/time-sheets/pages/TimeSheetsPage";
+import { ResourcePlanningPage } from "@/features/resource-planning/pages/ResourcePlanningPage";
+import { RiskRegisterPage } from "@/features/risk-register/pages/RiskRegisterPage";
+import { ChangeLogPage } from "@/features/change-log/pages/ChangeLogPage";
+import { ReleaseNotesPage } from "@/features/release-notes/pages/ReleaseNotesPage";
+import { ProductRequirementsPage } from "@/features/product-requirements/pages/ProductRequirementsPage";
+import { TestPlansPage } from "@/features/test-plans/pages/TestPlansPage";
+import { TestCasesPage } from "@/features/test-cases/pages/TestCasesPage";
+import { TestRunsPage } from "@/features/test-runs/pages/TestRunsPage";
+import { EnvironmentsPage } from "@/features/environments/pages/EnvironmentsPage";
+import { DeploymentsPage } from "@/features/deployments/pages/DeploymentsPage";
+import { FeatureFlagsPage } from "@/features/feature-flags/pages/FeatureFlagsPage";
+import { ABTestsPage } from "@/features/a-b-tests/pages/ABTestsPage";
+import { MetricsPage } from "@/features/metrics/pages/MetricsPage";
+import { AlertsPage } from "@/features/alerts/pages/AlertsPage";
+import { IncidentsPage } from "@/features/incidents/pages/IncidentsPage";
+import { OnCallPage } from "@/features/on-call/pages/OnCallPage";
+import { PostmortemsPage } from "@/features/postmortems/pages/PostmortemsPage";
+import { ServiceCatalogPage } from "@/features/service-catalog/pages/ServiceCatalogPage";
+import { RunbooksPage } from "@/features/runbooks/pages/RunbooksPage";
+import { MacrosPage } from "@/features/macros/pages/MacrosPage";
+import { QuickFiltersPage } from "@/features/quick-filters/pages/QuickFiltersPage";
+import { ColorSchemesPage } from "@/features/color-schemes/pages/ColorSchemesPage";
+import { EmailTemplatesPage } from "@/features/email-templates/pages/EmailTemplatesPage";
+import { InAppMessagesPage } from "@/features/in-app-messages/pages/InAppMessagesPage";
+import { TasksPage } from "@/features/tasks/pages/TasksPage";
+import { SubtasksPage } from "@/features/subtasks/pages/SubtasksPage";
+import { ChecklistsPage } from "@/features/checklists/pages/ChecklistsPage";
+import { TaskDependenciesPage } from "@/features/task-dependencies/pages/TaskDependenciesPage";
 import { BoardsPage } from "@/features/boards/pages/BoardsPage";
 import { QueuesPage } from "@/features/queues/pages/QueuesPage";
 import { CannedResponsesPage } from "@/features/canned-responses/pages/CannedResponsesPage";
@@ -136,6 +166,36 @@ export function AppRoutes() {
         <Route path="export" element={<ExportPage />} />
         <Route path="archive" element={<ArchivePage />} />
         <Route path="issues/:issueId" element={<IssueDetailPage />} />
+        <Route path="gantt" element={<GanttPage />} />
+        <Route path="time-sheets" element={<TimeSheetsPage />} />
+        <Route path="resource-planning" element={<ResourcePlanningPage />} />
+        <Route path="risk-register" element={<RiskRegisterPage />} />
+        <Route path="change-log" element={<ChangeLogPage />} />
+        <Route path="release-notes" element={<ReleaseNotesPage />} />
+        <Route path="product-requirements" element={<ProductRequirementsPage />} />
+        <Route path="test-plans" element={<TestPlansPage />} />
+        <Route path="test-cases" element={<TestCasesPage />} />
+        <Route path="test-runs" element={<TestRunsPage />} />
+        <Route path="environments" element={<EnvironmentsPage />} />
+        <Route path="deployments" element={<DeploymentsPage />} />
+        <Route path="feature-flags" element={<FeatureFlagsPage />} />
+        <Route path="a-b-tests" element={<ABTestsPage />} />
+        <Route path="metrics" element={<MetricsPage />} />
+        <Route path="alerts" element={<AlertsPage />} />
+        <Route path="incidents" element={<IncidentsPage />} />
+        <Route path="on-call" element={<OnCallPage />} />
+        <Route path="postmortems" element={<PostmortemsPage />} />
+        <Route path="service-catalog" element={<ServiceCatalogPage />} />
+        <Route path="runbooks" element={<RunbooksPage />} />
+        <Route path="macros" element={<MacrosPage />} />
+        <Route path="quick-filters" element={<QuickFiltersPage />} />
+        <Route path="color-schemes" element={<ColorSchemesPage />} />
+        <Route path="email-templates" element={<EmailTemplatesPage />} />
+        <Route path="in-app-messages" element={<InAppMessagesPage />} />
+        <Route path="tasks" element={<TasksPage />} />
+        <Route path="subtasks" element={<SubtasksPage />} />
+        <Route path="checklists" element={<ChecklistsPage />} />
+        <Route path="task-dependencies" element={<TaskDependenciesPage />} />
         <Route path="boards" element={<BoardsPage />} />
         <Route path="queues" element={<QueuesPage />} />
         <Route path="canned-responses" element={<CannedResponsesPage />} />
