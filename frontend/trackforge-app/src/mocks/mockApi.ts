@@ -164,6 +164,18 @@ let notifications: any[] = [
   { id: "n-3", text: "You were assigned to ENG-8", time: "3 hours ago", read: true },
 ];
 
+const users: any[] = [
+  { id: "u-1", name: "Bob", email: "bob@example.com", role: "Admin" },
+  { id: "u-2", name: "Alice", email: "alice@example.com", role: "Developer" },
+  { id: "u-3", name: "Charlie", email: "charlie@example.com", role: "Viewer" },
+];
+
+const auditLogs: any[] = [
+  { id: "al-1", userId: "u-1", userName: "Bob", action: "UPDATE", target: "i-1", targetType: "issue", description: "Changed status to In Progress", occurredAt: "2025-01-05T10:00:00Z" },
+  { id: "al-2", userId: "u-2", userName: "Alice", action: "CREATE", target: "i-4", targetType: "issue", description: "Created issue", occurredAt: "2025-01-05T11:00:00Z" },
+  { id: "al-3", userId: "u-3", userName: "Charlie", action: "DELETE", target: "i-5", targetType: "issue", description: "Deleted issue", occurredAt: "2025-01-05T12:00:00Z" },
+];
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -421,6 +433,32 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
 
   if (clean === "/notifications") {
     return notifications;
+  }
+
+  if (clean === "/users") {
+    return users;
+  }
+
+  if (clean === "/audit-logs") {
+    return auditLogs;
+  }
+
+  if (clean.startsWith("/reports/issue-types")) {
+    const q = queryParams(clean);
+    const pid = q.projectId ?? "p-1";
+    const projectIssues = issues.filter((i) => i.projectId === pid);
+    const counts: Record<string, number> = {};
+    projectIssues.forEach((i) => { const k = i.issueTypeName ?? "Unknown"; counts[k] = (counts[k] ?? 0) + 1; });
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }
+
+  if (clean.startsWith("/reports/priority")) {
+    const q = queryParams(clean);
+    const pid = q.projectId ?? "p-1";
+    const projectIssues = issues.filter((i) => i.projectId === pid);
+    const counts: Record<string, number> = {};
+    projectIssues.forEach((i) => { const k = i.priority ?? "None"; counts[k] = (counts[k] ?? 0) + 1; });
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }
 
   if (clean.match(/\/projects\/.+\/board$/)) {

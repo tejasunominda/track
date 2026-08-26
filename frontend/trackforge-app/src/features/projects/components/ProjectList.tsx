@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Layout, List, BarChart3, Plus } from "lucide-react";
+import { Layout, List, BarChart3, Plus, Layers } from "lucide-react";
 import { listProjects } from "@/features/projects/api/projects";
+import { listIssues } from "@/features/issues/api/issues";
 
 const templateIcon: Record<string, string> = {
   SCRUM: "S",
@@ -34,6 +36,14 @@ function SkeletonCard() {
 
 export function ProjectList() {
   const { data, isLoading } = useQuery({ queryKey: ["projects"], queryFn: listProjects });
+  const [counts, setCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!data) return;
+    Promise.all(data.map((p) => listIssues(p.id).then((issues) => ({ id: p.id, count: issues.length }))))
+      .then((rows) => setCounts(Object.fromEntries(rows.map((r) => [r.id, r.count]))))
+      .catch(console.error);
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -88,6 +98,10 @@ export function ProjectList() {
                 </span>
               </div>
               <p className="mb-4 flex-1 text-sm text-slate-600 line-clamp-2">{p.description}</p>
+              <div className="mb-3 flex items-center gap-2 text-xs text-slate-500">
+                <Layers className="h-3.5 w-3.5" />
+                {counts[p.id] ?? 0} issues
+              </div>
               <div className="flex items-center gap-2 border-t border-slate-100 pt-3">
                 <Link
                   to={`/projects/${p.id}/board`}

@@ -20,3 +20,16 @@ export async function fetchVelocity(projectId: string): Promise<Velocity[]> {
 export async function fetchBurndown(sprintId: string): Promise<Burndown> {
   return apiFetch<Burndown>(`/reports/burndown/${sprintId}`);
 }
+
+export interface Distribution {
+  name: string;
+  value: number;
+}
+
+export async function fetchIssueTypes(projectId: string): Promise<Distribution[]> {
+  return apiFetch<Distribution[]>(`/reports/issue-types?projectId=${projectId}`);
+}
+
+export async function fetchPriorityDistribution(projectId: string): Promise<Distribution[]> {
+  return apiFetch<Distribution[]>(`/reports/priority?projectId=${projectId}`);
+}
