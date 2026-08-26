@@ -1,5 +1,5 @@
 import { apiFetch } from "@/api/client";
-import { Attachment, CreateIssueInput, Issue, IssueComment } from "@/features/issues/types/issue";
+import { Attachment, CreateIssueInput, Issue, IssueComment, WorkLog } from "@/features/issues/types/issue";
 
 export async function listIssues(projectId: string): Promise<Issue[]> {
   return apiFetch<Issue[]>(`/issues?projectId=${projectId}`);
@@ -37,5 +37,16 @@ export async function uploadAttachment(issueId: string, file: File): Promise<Att
   return apiFetch<Attachment>(`/issues/${issueId}/attachments`, {
     method: "POST",
     body: formData,
+  });
+}
+
+export async function listWorkLogs(issueId: string): Promise<WorkLog[]> {
+  return apiFetch<WorkLog[]>(`/issues/${issueId}/worklogs`);
+}
+
+export async function createWorkLog(issueId: string, timeSpentMinutes: number, description?: string): Promise<WorkLog> {
+  return apiFetch<WorkLog>(`/issues/${issueId}/worklogs`, {
+    method: "POST",
+    body: JSON.stringify({ timeSpentMinutes, description }),
   });
 }

@@ -136,6 +136,10 @@ let attachments = [
   { id: "a-1", issueId: "i-1", uploadedBy: "u-2", fileName: "auth-flow.png", contentType: "image/png", sizeBytes: 124000, scanStatus: "CLEAN", downloadUrl: "#", createdAt: "2025-01-05T10:00:00Z" },
 ];
 
+let workLogs: any[] = [
+  { id: "w-1", issueId: "i-1", authorId: "u-2", authorName: "Alice", timeSpentMinutes: 120, description: "Initial setup", startedAt: "2025-01-05T09:00:00Z", createdAt: "2025-01-05T09:00:00Z" },
+];
+
 const velocity = [
   { sprintId: "sp-1", sprintName: "Sprint 1", committed: 18, completed: 14 },
   { sprintId: "sp-2", sprintName: "Sprint 2", committed: 20, completed: 19 },
@@ -263,6 +267,18 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
       return newAttachment;
     }
     return attachments.filter((a) => a.issueId === issueId);
+  }
+
+  const worklogMatch = clean.match(/^\/issues\/([^\/]+)\/worklogs$/);
+  if (worklogMatch) {
+    const issueId = worklogMatch[1];
+    if (method === "POST") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      const newWorkLog = { id: id(), issueId, authorId: "u-me", authorName: "Me", timeSpentMinutes: body.timeSpentMinutes ?? 0, description: body.description ?? null, startedAt: new Date().toISOString(), createdAt: new Date().toISOString() };
+      workLogs.push(newWorkLog);
+      return newWorkLog;
+    }
+    return workLogs.filter((w) => w.issueId === issueId);
   }
 
   if (clean.match(/\/projects\/.+\/board$/)) {

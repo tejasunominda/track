@@ -46,3 +46,14 @@ export interface CreateIssueInput {
   storyPoints?: number;
   parentId?: string;
 }
+
+export interface WorkLog {
+  id: string;
+  issueId: string;
+  authorId: string;
+  authorName: string | null;
+  timeSpentMinutes: number;
+  description: string | null;
+  startedAt: string;
+  createdAt: string;
+}

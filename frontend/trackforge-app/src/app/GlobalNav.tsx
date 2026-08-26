@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Bell, HelpCircle, Plus, Search, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Bell, ChevronDown, Folder, HelpCircle, Plus, Search, X } from "lucide-react";
 import { apiFetch } from "@/api/client";
 
 interface SearchIssue {
@@ -24,14 +24,31 @@ interface SearchResults {
   projects: SearchProject[];
 }
 
+interface Project {
+  id: string;
+  name: string;
+  projectKey: string;
+}
+
 export function GlobalNav() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResults>({ issues: [], projects: [] });
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
   const timer = useRef<number | null>(null);
   const wrapper = useRef<HTMLDivElement>(null);
+  const projectWrapper = useRef<HTMLDivElement>(null);
+
+  const currentProjectId = location.pathname.match(/^\/projects\/([^/]+)/)?.[1];
+  const currentProject = projects.find((p) => p.id === currentProjectId);
+
+  useEffect(() => {
+    apiFetch<Project[]>("/projects").then(setProjects).catch(console.error);
+  }, []);
 
   useEffect(() => {
     if (timer.current) window.clearTimeout(timer.current);
@@ -60,6 +77,9 @@ export function GlobalNav() {
       if (wrapper.current && !wrapper.current.contains(e.target as Node)) {
         setOpen(false);
       }
+      if (projectWrapper.current && !projectWrapper.current.contains(e.target as Node)) {
+        setProjectMenuOpen(false);
+      }
     }
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
@@ -77,6 +97,15 @@ export function GlobalNav() {
     navigate(`/projects/${projectId}/issues`);
   };
 
+  const onSwitchProject = (projectId: string) => {
+    setProjectMenuOpen(false);
+    if (location.pathname.match(/^\/projects\/[^/]+\/board$/)) {
+      navigate(`/projects/${projectId}/board`);
+    } else {
+      navigate(`/projects/${projectId}/issues`);
+    }
+  };
+
   const hasResults = results.issues.length > 0 || results.projects.length > 0;
 
   return (
@@ -88,6 +117,32 @@ export function GlobalNav() {
           </span>
           TrackForge
         </Link>
+
+        <div ref={projectWrapper} className="relative hidden sm:block">
+          <button
+            onClick={() => setProjectMenuOpen((s) => !s)}
+            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700 transition-all duration-150 hover:bg-slate-100"
+          >
+            <Folder className="h-4 w-4 text-slate-500" />
+            <span className="max-w-[8rem] truncate">{currentProject ? currentProject.name : "Select project"}</span>
+            <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform ${projectMenuOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          {projectMenuOpen && (
+            <div className="absolute top-full z-50 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-xl animate-fadeIn">
+              {projects.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => onSwitchProject(p.id)}
+                  className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-blue-50 hover:text-blue-700 ${p.id === currentProjectId ? "bg-blue-50 text-blue-700" : "text-slate-700"}`}
+                >
+                  <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600">{p.projectKey}</span>
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div ref={wrapper} className="hidden flex-1 px-8 sm:block">

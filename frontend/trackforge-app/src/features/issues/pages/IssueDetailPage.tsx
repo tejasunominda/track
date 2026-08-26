@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Paperclip, MessageSquare, User, Calendar, Flag } from "lucide-react";
-import { fetchIssue, listAttachments, listComments, postComment, uploadAttachment } from "@/features/issues/api/issues";
-import { Attachment, Issue, IssueComment } from "@/features/issues/types/issue";
+import { Paperclip, MessageSquare, User, Calendar, Flag, Clock } from "lucide-react";
+import { createWorkLog, fetchIssue, listAttachments, listComments, listWorkLogs, postComment, uploadAttachment } from "@/features/issues/api/issues";
+import { Attachment, Issue, IssueComment, WorkLog } from "@/features/issues/types/issue";
 
 const priorityColor: Record<string, string> = {
   Highest: "bg-red-100 text-red-700 ring-red-200",
@@ -26,7 +26,10 @@ export function IssueDetailPage() {
   const [issue, setIssue] = useState<Issue | null>(null);
   const [comments, setComments] = useState<IssueComment[]>([]);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [workLogs, setWorkLogs] = useState<WorkLog[]>([]);
   const [commentBody, setCommentBody] = useState("");
+  const [logMinutes, setLogMinutes] = useState("");
+  const [logDescription, setLogDescription] = useState("");
   const [loading, setLoading] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -34,14 +37,16 @@ export function IssueDetailPage() {
     if (!issueId) return;
     setLoading(true);
     try {
-      const [i, c, a] = await Promise.all([
+      const [i, c, a, w] = await Promise.all([
         fetchIssue(issueId),
         listComments(issueId),
         listAttachments(issueId),
+        listWorkLogs(issueId),
       ]);
       setIssue(i);
       setComments(c);
       setAttachments(a);
+      setWorkLogs(w);
     } catch (e) {
       console.error(e);
     } finally {
@@ -71,6 +76,20 @@ export function IssueDetailPage() {
     try {
       const a = await uploadAttachment(issueId, file);
       setAttachments((prev) => [...prev, a]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleLogWork = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!issueId || !logMinutes) return;
+    try {
+      const minutes = Number(logMinutes);
+      const log = await createWorkLog(issueId, minutes, logDescription || undefined);
+      setWorkLogs((prev) => [...prev, log]);
+      setLogMinutes("");
+      setLogDescription("");
     } catch (err) {
       console.error(err);
     }
@@ -140,6 +159,46 @@ export function IssueDetailPage() {
                 <li key={a.id} className="flex items-center justify-between rounded-lg border-b border-slate-100 p-2 text-sm transition-all duration-150 hover:bg-slate-50">
                   <span className="text-slate-700">{a.fileName}</span>
                   <a href={a.downloadUrl} className="text-sm font-semibold text-blue-600 hover:underline">Download</a>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-500">
+              <Clock className="h-4 w-4" />
+              Work logs
+            </h2>
+            <form onSubmit={handleLogWork} className="mb-4 grid gap-2 sm:grid-cols-3">
+              <input
+                type="number"
+                min={1}
+                value={logMinutes}
+                onChange={(e) => setLogMinutes(e.target.value)}
+                placeholder="Minutes"
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+              <input
+                value={logDescription}
+                onChange={(e) => setLogDescription(e.target.value)}
+                placeholder="Description (optional)"
+                className="sm:col-span-2 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+              <button
+                type="submit"
+                className="sm:col-start-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0"
+              >
+                Log work
+              </button>
+            </form>
+            <ul className="space-y-2">
+              {workLogs.map((w) => (
+                <li key={w.id} className="flex items-center justify-between rounded-lg border-b border-slate-100 p-2 text-sm transition-all duration-150 hover:bg-slate-50">
+                  <div>
+                    <div className="font-medium text-slate-800">{w.authorName ?? w.authorId} – {w.description ?? "Work logged"}</div>
+                    <div className="text-[10px] text-slate-400">{new Date(w.createdAt).toLocaleString()}</div>
+                  </div>
+                  <span className="rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">{w.timeSpentMinutes}m</span>
                 </li>
               ))}
             </ul>
