@@ -13,17 +13,23 @@ import { fetchBoard, moveIssue } from "@/features/board/api/board";
 import { BoardColumn, BoardIssue, BoardState } from "@/features/board/types/board";
 
 const priorityColor: Record<string, string> = {
-  Highest: "bg-red-100 text-red-700",
-  High: "bg-orange-100 text-orange-700",
-  Medium: "bg-yellow-100 text-yellow-700",
-  Low: "bg-slate-100 text-slate-600",
-  Lowest: "bg-slate-100 text-slate-500",
+  Highest: "bg-red-100 text-red-700 ring-red-200",
+  High: "bg-orange-100 text-orange-700 ring-orange-200",
+  Medium: "bg-yellow-100 text-yellow-700 ring-yellow-200",
+  Low: "bg-slate-100 text-slate-600 ring-slate-200",
+  Lowest: "bg-slate-100 text-slate-500 ring-slate-200",
+};
+
+const categoryBorder: Record<string, string> = {
+  TODO: "border-l-slate-400",
+  IN_PROGRESS: "border-l-blue-500",
+  DONE: "border-l-green-500",
 };
 
 function PriorityBadge({ priority }: { priority: string | null }) {
   if (!priority) return null;
   return (
-    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${priorityColor[priority] ?? "bg-slate-100 text-slate-600"}`}>
+    <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ${priorityColor[priority] ?? "bg-slate-100 text-slate-600 ring-slate-200"}`}>
       {priority}
     </span>
   );
@@ -31,9 +37,18 @@ function PriorityBadge({ priority }: { priority: string | null }) {
 
 function TypeIcon({ type }: { type: string | null }) {
   return (
-    <span className="flex h-4 w-4 items-center justify-center rounded bg-blue-100 text-[10px] font-bold text-blue-700">
+    <span className="flex h-5 w-5 items-center justify-center rounded bg-blue-100 text-xs font-bold text-blue-700 ring-1 ring-blue-200">
       {type ? type[0].toUpperCase() : "?"}
     </span>
+  );
+}
+
+function Avatar({ id }: { id: string | null }) {
+  if (!id) return <div className="h-6 w-6 rounded-full bg-slate-100 text-center text-[10px] leading-6 text-slate-500">—</div>;
+  return (
+    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-[10px] font-bold text-white shadow-sm">
+      {id.slice(0, 1).toUpperCase()}
+    </div>
   );
 }
 
@@ -49,20 +64,20 @@ function IssueCard({ issue }: { issue: BoardIssue }) {
       {...listeners}
       {...attributes}
       style={style}
-      className={`group mb-2 cursor-grab rounded border border-slate-200 bg-white p-3 shadow-sm transition-all hover:border-blue-300 hover:shadow-md ${
-        isDragging ? "opacity-50" : ""
+      className={`group mb-3 cursor-grab rounded-lg border border-slate-200 border-l-4 ${categoryBorder[issue.statusCategory ?? "TODO"]} bg-white p-3 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg ${
+        isDragging ? "opacity-40 rotate-2" : ""
       }`}
     >
       <div className="mb-2 flex items-start justify-between gap-2">
         <TypeIcon type={issue.issueTypeName} />
         <PriorityBadge priority={issue.priority} />
       </div>
-      <div className="text-sm font-medium leading-snug text-slate-800">{issue.summary}</div>
-      <div className="mt-2 flex items-center justify-between">
+      <div className="text-sm font-semibold leading-snug text-slate-800 transition-colors group-hover:text-blue-800">
+        {issue.summary}
+      </div>
+      <div className="mt-3 flex items-center justify-between">
         <span className="text-[10px] font-mono text-slate-400">{issue.id.slice(0, 8)}</span>
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-500">
-          {issue.assigneeId ? issue.assigneeId.slice(0, 1).toUpperCase() : "—"}
-        </div>
+        <Avatar id={issue.assigneeId} />
       </div>
     </div>
   );
@@ -80,19 +95,19 @@ function Column({
   return (
     <div
       ref={setNodeRef}
-      className={`flex h-full min-h-[22rem] w-72 flex-col rounded bg-slate-100 p-2 ${
-        isOver ? "ring-2 ring-blue-400" : ""
+      className={`flex h-full min-h-[22rem] w-72 flex-col rounded-xl border border-slate-200 bg-slate-50 p-2 transition-all duration-200 ${
+        isOver ? "ring-2 ring-blue-400 bg-blue-50/50" : ""
       }`}
     >
       <div className="mb-2 flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-slate-700">{column.statusName}</span>
-          <span className="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-semibold text-slate-600">
+          <span className="text-sm font-bold text-slate-700">{column.statusName}</span>
+          <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-bold text-slate-600">
             {count}
           </span>
         </div>
       </div>
-      <div className="flex flex-1 flex-col overflow-y-auto">{children}</div>
+      <div className="flex flex-1 flex-col overflow-y-auto px-1">{children}</div>
     </div>
   );
 }
@@ -144,7 +159,7 @@ export function BoardPage() {
     }));
     const target = nextBoard.find((c) => c.statusId === newStatusId);
     if (target) {
-      const updated = { ...movedIssue, statusName: target.statusName };
+      const updated = { ...movedIssue, statusName: target.statusName, statusCategory: target.statusCategory };
       if (afterIssueId) {
         const idx = target.issues.findIndex((i) => i.id === afterIssueId);
         target.issues.splice(idx + 1, 0, updated);
@@ -166,7 +181,7 @@ export function BoardPage() {
   if (!board) return <div className="p-6 text-red-600">Could not load board.</div>;
 
   return (
-    <div className="h-full bg-slate-50 p-4">
+    <div className="h-full bg-slate-50 p-4 animate-fadeIn">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-900">{board.projectName}</h1>

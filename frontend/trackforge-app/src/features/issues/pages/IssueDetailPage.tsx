@@ -5,17 +5,17 @@ import { fetchIssue, listAttachments, listComments, postComment, uploadAttachmen
 import { Attachment, Issue, IssueComment } from "@/features/issues/types/issue";
 
 const priorityColor: Record<string, string> = {
-  Highest: "bg-red-100 text-red-700",
-  High: "bg-orange-100 text-orange-700",
-  Medium: "bg-yellow-100 text-yellow-700",
-  Low: "bg-slate-100 text-slate-600",
-  Lowest: "bg-slate-100 text-slate-500",
+  Highest: "bg-red-100 text-red-700 ring-red-200",
+  High: "bg-orange-100 text-orange-700 ring-orange-200",
+  Medium: "bg-yellow-100 text-yellow-700 ring-yellow-200",
+  Low: "bg-slate-100 text-slate-600 ring-slate-200",
+  Lowest: "bg-slate-100 text-slate-500 ring-slate-200",
 };
 
 function PriorityBadge({ priority }: { priority: string | null }) {
   if (!priority) return null;
   return (
-    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${priorityColor[priority] ?? "bg-slate-100 text-slate-600"}`}>
+    <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ${priorityColor[priority] ?? "bg-slate-100 text-slate-600 ring-slate-200"}`}>
       {priority}
     </span>
   );
@@ -57,10 +57,9 @@ export function IssueDetailPage() {
     e.preventDefault();
     if (!issueId || !commentBody.trim()) return;
     try {
-      await postComment(issueId, commentBody);
+      const comment = await postComment(issueId, commentBody);
       setCommentBody("");
-      const c = await listComments(issueId);
-      setComments(c);
+      setComments((prev) => [...prev, { ...comment, authorName: comment.authorName ?? "You" }]);
     } catch (err) {
       console.error(err);
     }
@@ -70,9 +69,8 @@ export function IssueDetailPage() {
     const file = e.target.files?.[0];
     if (!file || !issueId) return;
     try {
-      await uploadAttachment(issueId, file);
-      const a = await listAttachments(issueId);
-      setAttachments(a);
+      const a = await uploadAttachment(issueId, file);
+      setAttachments((prev) => [...prev, a]);
     } catch (err) {
       console.error(err);
     }
@@ -82,24 +80,24 @@ export function IssueDetailPage() {
   if (!issue) return <div className="p-6 text-red-600">Issue not found.</div>;
 
   return (
-    <div className="h-full bg-slate-50 p-6">
-      <div className="mb-6 rounded border bg-white p-6 shadow-sm">
-        <div className="mb-3 flex items-center gap-2 text-sm">
-          <span className="rounded bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">{issue.issueTypeName}</span>
-          <span className="rounded bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">{issue.statusName}</span>
+    <div className="h-full bg-slate-50 p-6 animate-fadeIn">
+      <div className="mb-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md">
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+          <span className="rounded bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-100">{issue.issueTypeName}</span>
+          <span className="rounded bg-slate-100 px-2 py-1 text-xs font-bold text-slate-700">{issue.statusName}</span>
           <PriorityBadge priority={issue.priority} />
         </div>
         <h1 className="text-2xl font-bold text-slate-900">{issue.summary}</h1>
         <div className="mt-1 text-sm text-slate-500">
-          Added by {issue.reporterId ?? "unknown"} on {new Date(issue.createdAt).toLocaleDateString()}
+          Added by <span className="font-medium text-slate-700">{issue.reporterId ?? "unknown"}</span> on {new Date(issue.createdAt).toLocaleDateString()}
         </div>
         <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{issue.description}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
-          <section className="rounded border bg-white p-4 shadow-sm">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase text-slate-500">
+          <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-500">
               <MessageSquare className="h-4 w-4" />
               Comments
             </h2>
@@ -108,16 +106,16 @@ export function IssueDetailPage() {
                 value={commentBody}
                 onChange={(e) => setCommentBody(e.target.value)}
                 placeholder="Add a comment…"
-                className="flex-1 rounded border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
-              <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+              <button type="submit" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0">
                 Post
               </button>
             </form>
             <div className="space-y-3">
               {comments.map((c) => (
-                <div key={c.id} className="rounded bg-slate-50 p-3">
-                  <div className="text-xs font-semibold text-slate-600">{c.authorName ?? c.authorId}</div>
+                <div key={c.id} className="rounded-lg bg-slate-50 p-3 transition-all duration-150 hover:bg-blue-50/30">
+                  <div className="text-xs font-bold text-slate-600">{c.authorName ?? c.authorId}</div>
                   <div className="mt-0.5 text-[10px] text-slate-400">{new Date(c.createdAt).toLocaleString()}</div>
                   <p className="mt-2 text-sm text-slate-800">{c.body}</p>
                 </div>
@@ -125,31 +123,31 @@ export function IssueDetailPage() {
             </div>
           </section>
 
-          <section className="rounded border bg-white p-4 shadow-sm">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase text-slate-500">
+          <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-500">
               <Paperclip className="h-4 w-4" />
               Attachments
             </h2>
             <input ref={fileRef} type="file" onChange={handleFile} className="hidden" />
             <button
               onClick={() => fileRef.current?.click()}
-              className="mb-3 rounded border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-50"
+              className="mb-3 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow-sm"
             >
               Upload file
             </button>
             <ul className="space-y-2">
               {attachments.map((a) => (
-                <li key={a.id} className="flex items-center justify-between rounded border-b border-slate-100 pb-2 text-sm">
+                <li key={a.id} className="flex items-center justify-between rounded-lg border-b border-slate-100 p-2 text-sm transition-all duration-150 hover:bg-slate-50">
                   <span className="text-slate-700">{a.fileName}</span>
-                  <a href={a.downloadUrl} className="text-sm font-medium text-blue-600 hover:underline">Download</a>
+                  <a href={a.downloadUrl} className="text-sm font-semibold text-blue-600 hover:underline">Download</a>
                 </li>
               ))}
             </ul>
           </section>
         </div>
 
-        <aside className="rounded border bg-white p-4 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold uppercase text-slate-500">Details</h2>
+        <aside className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">Details</h2>
           <dl className="space-y-4 text-sm">
             <div className="flex items-center justify-between">
               <dt className="flex items-center gap-2 text-slate-500"><User className="h-3.5 w-3.5" /> Reporter</dt>
