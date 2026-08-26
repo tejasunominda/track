@@ -288,6 +288,18 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
     { id: "f-2", name: "My issues", query: 'assignee = "me" AND status != "Done"' },
   ];
 
+  if (clean.startsWith("/search?")) {
+    const q = queryParams(clean).q?.toLowerCase() ?? "";
+    return {
+      issues: issues
+        .filter((i) => i.summary.toLowerCase().includes(q) || (i.description ?? "").toLowerCase().includes(q))
+        .map((i) => ({ id: i.id, summary: i.summary, projectId: i.projectId, issueTypeName: i.issueTypeName, statusName: i.statusName, priority: i.priority, assigneeId: i.assigneeId })),
+      projects: projects
+        .filter((p) => p.name.toLowerCase().includes(q) || p.projectKey.toLowerCase().includes(q))
+        .map((p) => ({ id: p.id, name: p.name, projectKey: p.projectKey })),
+    };
+  }
+
   if (clean === "/search/filters") {
     if (method === "POST") {
       const body = init?.body ? JSON.parse(init.body as string) : {};
