@@ -110,6 +110,28 @@ export function SidebarNav() {
         <SidebarItem to="/export" icon={List} label="Export" />
         <SidebarItem to="/archive" icon={List} label="Archive" />
       </SidebarSection>
+      <SidebarSection title="More 2">
+        <SidebarItem to="/teams" icon={List} label="Teams" />
+        <SidebarItem to="/goals" icon={List} label="Goals" />
+        <SidebarItem to="/forms" icon={List} label="Forms" />
+        <SidebarItem to="/assets" icon={List} label="Assets" />
+        <SidebarItem to="/calendar" icon={List} label="Calendar" />
+        <SidebarItem to="/timeline" icon={List} label="Timeline" />
+        <SidebarItem to="/dependencies" icon={List} label="Dependencies" />
+        <SidebarItem to="/approvals" icon={List} label="Approvals" />
+        <SidebarItem to="/announcements" icon={List} label="Announcements" />
+        <SidebarItem to="/templates" icon={List} label="Templates" />
+        <SidebarItem to="/reports-export" icon={List} label="Reports export" />
+        <SidebarItem to="/rule-engine" icon={List} label="Rule engine" />
+        <SidebarItem to="/roles" icon={List} label="Roles" />
+        <SidebarItem to="/groups" icon={List} label="Groups" />
+        <SidebarItem to="/invitations" icon={List} label="Invitations" />
+        <SidebarItem to="/security" icon={List} label="Security" />
+        <SidebarItem to="/webhooks" icon={List} label="Webhooks" />
+        <SidebarItem to="/audit-trail" icon={List} label="Audit trail" />
+        <SidebarItem to="/migrate" icon={List} label="Migrate" />
+        <SidebarItem to="/analytics" icon={List} label="Analytics" />
+      </SidebarSection>
     </nav>
   );
 }

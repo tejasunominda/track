@@ -1,4 +1,24 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { TeamsPage } from "@/features/teams/pages/TeamsPage";
+import { GoalsPage } from "@/features/goals/pages/GoalsPage";
+import { FormsPage } from "@/features/forms/pages/FormsPage";
+import { AssetsPage } from "@/features/assets/pages/AssetsPage";
+import { CalendarPage } from "@/features/calendar/pages/CalendarPage";
+import { TimelinePage } from "@/features/timeline/pages/TimelinePage";
+import { DependenciesPage } from "@/features/dependencies/pages/DependenciesPage";
+import { ApprovalsPage } from "@/features/approvals/pages/ApprovalsPage";
+import { AnnouncementsPage } from "@/features/announcements/pages/AnnouncementsPage";
+import { TemplatesPage } from "@/features/templates/pages/TemplatesPage";
+import { ReportsExportPage } from "@/features/reports-export/pages/ReportsExportPage";
+import { RuleEnginePage } from "@/features/rule-engine/pages/RuleEnginePage";
+import { RolesPage } from "@/features/roles/pages/RolesPage";
+import { GroupsPage } from "@/features/groups/pages/GroupsPage";
+import { InvitationsPage } from "@/features/invitations/pages/InvitationsPage";
+import { SecurityPage } from "@/features/security/pages/SecurityPage";
+import { WebhooksPage } from "@/features/webhooks/pages/WebhooksPage";
+import { AuditTrailPage } from "@/features/audit-trail/pages/AuditTrailPage";
+import { MigratePage } from "@/features/migrate/pages/MigratePage";
+import { AnalyticsPage } from "@/features/analytics/pages/AnalyticsPage";
 import { LabelsPage } from "@/features/labels/pages/LabelsPage";
 import { ComponentsPage } from "@/features/components/pages/ComponentsPage";
 import { ReleasesPage } from "@/features/releases/pages/ReleasesPage";
@@ -86,6 +106,26 @@ export function AppRoutes() {
         <Route path="export" element={<ExportPage />} />
         <Route path="archive" element={<ArchivePage />} />
         <Route path="issues/:issueId" element={<IssueDetailPage />} />
+        <Route path="teams" element={<TeamsPage />} />
+        <Route path="goals" element={<GoalsPage />} />
+        <Route path="forms" element={<FormsPage />} />
+        <Route path="assets" element={<AssetsPage />} />
+        <Route path="calendar" element={<CalendarPage />} />
+        <Route path="timeline" element={<TimelinePage />} />
+        <Route path="dependencies" element={<DependenciesPage />} />
+        <Route path="approvals" element={<ApprovalsPage />} />
+        <Route path="announcements" element={<AnnouncementsPage />} />
+        <Route path="templates" element={<TemplatesPage />} />
+        <Route path="reports-export" element={<ReportsExportPage />} />
+        <Route path="rule-engine" element={<RuleEnginePage />} />
+        <Route path="roles" element={<RolesPage />} />
+        <Route path="groups" element={<GroupsPage />} />
+        <Route path="invitations" element={<InvitationsPage />} />
+        <Route path="security" element={<SecurityPage />} />
+        <Route path="webhooks" element={<WebhooksPage />} />
+        <Route path="audit-trail" element={<AuditTrailPage />} />
+        <Route path="migrate" element={<MigratePage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
       </Route>
     </Routes>
   );
