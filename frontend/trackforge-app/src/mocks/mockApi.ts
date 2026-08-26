@@ -128,12 +128,12 @@ const issues: Issue[] = [
   },
 ];
 
-const comments = [
+let comments = [
   { id: "c-1", issueId: "i-1", authorId: "u-2", authorName: "Alice", body: "I can take this one.", createdAt: "2025-01-05T08:30:00Z", updatedAt: "2025-01-05T08:30:00Z" },
   { id: "c-2", issueId: "i-1", authorId: "u-1", authorName: "Bob", body: "Let's pair on it tomorrow.", createdAt: "2025-01-05T09:00:00Z", updatedAt: "2025-01-05T09:00:00Z" },
 ];
 
-const attachments = [
+let attachments = [
   { id: "a-1", issueId: "i-1", uploadedBy: "u-2", fileName: "auth-flow.png", contentType: "image/png", sizeBytes: 124000, scanStatus: "CLEAN", downloadUrl: "#", createdAt: "2025-01-05T10:00:00Z" },
 ];
 
@@ -180,11 +180,16 @@ function queryParams(path: string) {
   return Object.fromEntries(new URLSearchParams(path.includes("?") ? path.split("?")[1] : ""));
 }
 
-export async function mockFetch(path: string, init?: RequestInit): Promise<any> {
-  await sleep(250); // realistic latency
-  const clean = path.replace(/^\/api\/v1/, "");
+function id() {
+  return `id-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
 
-  if (clean === "/auth/login" && init?.method === "POST") {
+export async function mockFetch(path: string, init?: RequestInit): Promise<any> {
+  await sleep(250);
+  const clean = path.replace(/^\/api\/v1/, "");
+  const method = (init?.method ?? "GET").toUpperCase();
+
+  if (clean === "/auth/login" && method === "POST") {
     return { accessToken: "mock-access-token", refreshToken: "mock-refresh-token" };
   }
 
@@ -197,29 +202,60 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
     return issues.filter((i) => i.projectId === q.projectId).map((i) => ({ ...i }));
   }
 
-  if (clean.startsWith("/issues/") && !clean.includes("/comments") && !clean.includes("/attachments")) {
-    const id = clean.replace("/issues/", "");
-    return issues.find((i) => i.id === id) ?? { status: 404, error: { message: "Not found" } };
+  const issueMatch = clean.match(/^\/issues\/([^\/]+)$/);
+  if (issueMatch) {
+    const issueId = issueMatch[1];
+    const issue = issues.find((i) => i.id === issueId);
+    if (!issue) return { status: 404, error: { message: "Not found" } };
+    if (method === "PUT") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      if (body.statusId) {
+        const target = board.columns.find((c) => c.statusId === body.statusId);
+        if (target) {
+          issue.statusName = target.statusName;
+          issue.statusCategory = target.statusCategory;
+        }
+      }
+      if (body.assigneeId) issue.assigneeId = body.assigneeId;
+      if (body.priority) issue.priority = body.priority;
+      if (body.summary) issue.summary = body.summary;
+      if (body.description) issue.description = body.description;
+      return { ...issue };
+    }
+    return { ...issue };
   }
 
-  if (clean.match(/\/issues\/.+\/comments/)) {
-    const id = clean.split("/")[2];
-    return comments.filter((c) => c.issueId === id);
+  const commentMatch = clean.match(/^\/issues\/([^\/]+)\/comments$/);
+  if (commentMatch) {
+    const issueId = commentMatch[1];
+    if (method === "POST") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      const newComment = { id: id(), issueId, authorId: "u-me", authorName: "Me", body: body.body, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      comments.push(newComment);
+      return newComment;
+    }
+    return comments.filter((c) => c.issueId === issueId);
   }
 
-  if (clean.match(/\/issues\/.+\/attachments/)) {
-    const id = clean.split("/")[2];
-    return attachments.filter((a) => a.issueId === id);
+  const attachmentMatch = clean.match(/^\/issues\/([^\/]+)\/attachments$/);
+  if (attachmentMatch) {
+    const issueId = attachmentMatch[1];
+    if (method === "POST") {
+      const newAttachment = { id: id(), issueId, uploadedBy: "u-me", fileName: "uploaded-file.txt", contentType: "text/plain", sizeBytes: 1024, scanStatus: "CLEAN", downloadUrl: "#", createdAt: new Date().toISOString() };
+      attachments.push(newAttachment);
+      return newAttachment;
+    }
+    return attachments.filter((a) => a.issueId === issueId);
   }
 
   if (clean.match(/\/projects\/.+\/board$/)) {
-    const id = clean.split("/")[2];
-    return { ...board, projectId: id };
+    const pid = clean.split("/")[2];
+    return { ...board, projectId: pid };
   }
 
   if (clean.match(/\/projects\/.+\/issues/)) {
-    const id = clean.split("/")[2];
-    return issues.filter((i) => i.projectId === id).map((i) => ({ ...i }));
+    const pid = clean.split("/")[2];
+    return issues.filter((i) => i.projectId === pid).map((i) => ({ ...i }));
   }
 
   if (clean.startsWith("/reports/velocity")) {
@@ -237,5 +273,5 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
     ];
   }
 
-  throw new Error(`Mock not implemented for ${clean}`);
+  throw new Error(`Mock not implemented for ${clean} ${method}`);
 }

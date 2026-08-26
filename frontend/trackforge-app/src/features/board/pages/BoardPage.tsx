@@ -61,6 +61,7 @@ function IssueCard({ issue }: { issue: BoardIssue }) {
   return (
     <div
       ref={setNodeRef}
+      data-testid={`issue-card-${issue.id}`}
       {...listeners}
       {...attributes}
       style={style}
@@ -95,6 +96,7 @@ function Column({
   return (
     <div
       ref={setNodeRef}
+      data-testid={`column-${column.statusId}`}
       className={`flex h-full min-h-[22rem] w-72 flex-col rounded-xl border border-slate-200 bg-slate-50 p-2 transition-all duration-200 ${
         isOver ? "ring-2 ring-blue-400 bg-blue-50/50" : ""
       }`}
