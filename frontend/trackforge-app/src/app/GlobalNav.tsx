@@ -222,7 +222,10 @@ export function GlobalNav() {
       </div>
 
       <div className="flex items-center gap-2">
-        <button className="hidden items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0 sm:flex">
+        <button
+          onClick={() => navigate("/projects?create=true")}
+          className="hidden items-center gap-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-md transition-all duration-150 hover:-translate-y-0.5 hover:shadow-lg hover:brightness-110 active:translate-y-0 sm:flex"
+        >
           <Plus className="h-4 w-4" />
           Create
         </button>

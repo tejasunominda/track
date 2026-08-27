@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Layout, List, BarChart3, Plus, Layers } from "lucide-react";
+import { Layout, List, BarChart3, Plus, Layers, AlertCircle } from "lucide-react";
 import { listProjects } from "@/features/projects/api/projects";
 import { listIssues } from "@/features/issues/api/issues";
+import { CreateProjectModal } from "./CreateProjectModal";
 
 const templateIcon: Record<string, string> = {
   SCRUM: "S",
@@ -35,8 +36,9 @@ function SkeletonCard() {
 }
 
 export function ProjectList() {
-  const { data, isLoading } = useQuery({ queryKey: ["projects"], queryFn: listProjects });
+  const { data, isLoading, error } = useQuery({ queryKey: ["projects"], queryFn: listProjects });
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
     if (!data) return;
@@ -58,6 +60,29 @@ export function ProjectList() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="h-full bg-slate-50 p-6 animate-fadeIn">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
+            <p className="text-sm text-slate-500">Select a project to start tracking work.</p>
+          </div>
+          <button onClick={() => setShowCreate(true)} className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0">
+            <Plus className="h-4 w-4" />
+            Create project
+          </button>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-xl border border-amber-200 bg-amber-50 p-12 text-center">
+          <AlertCircle className="mb-3 h-10 w-10 text-amber-500" />
+          <p className="text-sm font-semibold text-amber-800">Couldn't load projects</p>
+          <p className="mt-1 text-xs text-amber-600">Backend is not running. Start the backend or use mock mode.</p>
+        </div>
+        <CreateProjectModal open={showCreate} onClose={() => setShowCreate(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="h-full bg-slate-50 p-6 animate-fadeIn">
       <div className="mb-6 flex items-center justify-between">
@@ -65,7 +90,7 @@ export function ProjectList() {
           <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
           <p className="text-sm text-slate-500">Select a project to start tracking work.</p>
         </div>
-        <button className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0">
+        <button onClick={() => setShowCreate(true)} className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-md active:translate-y-0">
           <Plus className="h-4 w-4" />
           Create project
         </button>
@@ -129,6 +154,7 @@ export function ProjectList() {
           ))}
         </div>
       )}
+      <CreateProjectModal open={showCreate} onClose={() => setShowCreate(false)} />
     </div>
   );
 }

@@ -1,54 +1,301 @@
+import { useState } from "react";
 import { NavLink, useMatch } from "react-router-dom";
 import {
-  Layout,
-  List,
-  Grid3X3,
-  Filter,
-  Home,
-  BarChart3,
-  Settings,
-  Users,
-  Search,
-  Bell,
-  Shield,
-  HelpCircle,
-  User,
-  Clock,
+  Layout, List, Grid3X3, Filter, Home, BarChart3, Settings, Users, Search,
+  Bell, Shield, HelpCircle, User, Clock, ChevronDown, Tag, GitBranch,
+  Workflow, FileText, DollarSign, Plug, Headphones, Briefcase, Map,
+  Mountain, Calendar, Clock3, Layers, Wand2, Download, Upload, Archive,
+  Target, FormInput, AlertTriangle,
+  Activity, Bookmark, Flag, Trash2, Copy, Move, Edit3, Link2,
+  History, BellRing, Mail, AtSign, Eye, ThumbsUp, Star,
+  GanttChartSquare, FileSpreadsheet, Presentation, StickyNote,
+  RefreshCcw, Users2, TrendingUp, Award, Network, BriefcaseBusiness,
+  UserPlus, UserMinus, Palmtree, Receipt, FileCheck, Handshake, ShoppingCart,
+  Box, HardDrive, Monitor, Contact, Lightbulb, Quote, Package,
+  Truck, CreditCard, Undo, Wallet, Building2, Factory,
+  ClipboardList, Wrench, Bug, XOctagon, ShieldCheck, GraduationCap,
+  BookOpen, ScrollText, ListChecks, ClipboardCheck, PlayCircle, Server,
+  Rocket, ToggleLeft, FlaskConical, Gauge, Siren, Phone, FileSearch,
+  BookMarked, Zap, Palette, MailOpen, CheckSquare, SquareStack,
+  ArrowRightLeft, FileImage,
+  PencilLine, Brain, PenTool, Type, UsersRound, Milestone,
 } from "lucide-react";
 
-function SidebarItem({
-  to,
-  icon: Icon,
-  label,
-}: {
-  to: string;
-  icon: React.ElementType;
-  label: string;
-}) {
+type IconType = React.ElementType;
+
+interface NavEntry { to: string; icon: IconType; label: string; }
+interface NavGroup { title: string; icon: IconType; items: NavEntry[]; }
+
+const groups: NavGroup[] = [
+  {
+    title: "Main", icon: Home, items: [
+      { to: "/", icon: Home, label: "Your work" },
+      { to: "/projects", icon: Grid3X3, label: "Projects" },
+      { to: "/search", icon: Search, label: "Search" },
+      { to: "/filters", icon: Filter, label: "Filters" },
+      { to: "/dashboards", icon: Layout, label: "Dashboards" },
+      { to: "/notifications", icon: Bell, label: "Notifications" },
+    ],
+  },
+  {
+    title: "Planning", icon: Map, items: [
+      { to: "/roadmap", icon: Map, label: "Roadmap" },
+      { to: "/epics", icon: Mountain, label: "Epics" },
+      { to: "/milestones", icon: Milestone, label: "Milestones" },
+      { to: "/versions", icon: Tag, label: "Versions" },
+      { to: "/releases", icon: GitBranch, label: "Releases" },
+      { to: "/calendar", icon: Calendar, label: "Calendar" },
+      { to: "/timeline", icon: Clock3, label: "Timeline" },
+      { to: "/gantt", icon: GanttChartSquare, label: "Gantt" },
+      { to: "/dependencies", icon: ArrowRightLeft, label: "Dependencies" },
+      { to: "/goals", icon: Target, label: "Goals" },
+      { to: "/portfolio", icon: Briefcase, label: "Portfolio" },
+    ],
+  },
+  {
+    title: "Project Config", icon: Settings, items: [
+      { to: "/components", icon: Layers, label: "Components" },
+      { to: "/labels", icon: Tag, label: "Labels" },
+      { to: "/workflows", icon: Workflow, label: "Workflows" },
+      { to: "/issue-types", icon: Type, label: "Issue types" },
+      { to: "/permissions", icon: Shield, label: "Permissions" },
+      { to: "/custom-fields", icon: FormInput, label: "Custom fields" },
+      { to: "/screens", icon: Layout, label: "Screens" },
+      { to: "/schemes", icon: SquareStack, label: "Schemes" },
+      { to: "/field-configs", icon: ListChecks, label: "Field configs" },
+      { to: "/automation", icon: Wand2, label: "Automation" },
+      { to: "/rule-engine", icon: Zap, label: "Rule engine" },
+      { to: "/templates", icon: FileText, label: "Templates" },
+    ],
+  },
+  {
+    title: "Teams & People", icon: Users, items: [
+      { to: "/people", icon: Users, label: "People" },
+      { to: "/teams", icon: UsersRound, label: "Teams" },
+      { to: "/roles", icon: Shield, label: "Roles" },
+      { to: "/groups", icon: Users2, label: "Groups" },
+      { to: "/invitations", icon: UserPlus, label: "Invitations" },
+      { to: "/org-chart", icon: Network, label: "Org chart" },
+      { to: "/job-descriptions", icon: BriefcaseBusiness, label: "Job descriptions" },
+      { to: "/hiring", icon: UserPlus, label: "Hiring" },
+      { to: "/onboarding", icon: UserPlus, label: "Onboarding" },
+      { to: "/offboarding", icon: UserMinus, label: "Offboarding" },
+      { to: "/vacation", icon: Palmtree, label: "Vacation" },
+      { to: "/time-sheets", icon: Clock, label: "Time sheets" },
+      { to: "/resource-planning", icon: Users, label: "Resource planning" },
+      { to: "/skills-matrix", icon: Award, label: "Skills matrix" },
+      { to: "/career-path", icon: TrendingUp, label: "Career path" },
+      { to: "/performance-review", icon: Star, label: "Performance review" },
+      { to: "/one-on-one", icon: Users, label: "1:1s" },
+      { to: "/standups", icon: Activity, label: "Standups" },
+      { to: "/retrospectives", icon: RefreshCcw, label: "Retrospectives" },
+      { to: "/meeting-notes", icon: StickyNote, label: "Meeting notes" },
+    ],
+  },
+  {
+    title: "Issue Actions", icon: List, items: [
+      { to: "/tasks", icon: CheckSquare, label: "Tasks" },
+      { to: "/subtasks", icon: List, label: "Subtasks" },
+      { to: "/checklists", icon: ClipboardCheck, label: "Checklists" },
+      { to: "/task-dependencies", icon: ArrowRightLeft, label: "Task dependencies" },
+      { to: "/bulk-edit", icon: Edit3, label: "Bulk edit" },
+      { to: "/copy", icon: Copy, label: "Copy" },
+      { to: "/move", icon: Move, label: "Move" },
+      { to: "/link", icon: Link2, label: "Link" },
+      { to: "/clone", icon: Copy, label: "Clone" },
+      { to: "/import", icon: Upload, label: "Import" },
+      { to: "/export", icon: Download, label: "Export" },
+      { to: "/archive", icon: Archive, label: "Archive" },
+      { to: "/trash", icon: Trash2, label: "Trash" },
+      { to: "/recycle-bin", icon: Trash2, label: "Recycle bin" },
+      { to: "/drafts", icon: FileText, label: "Drafts" },
+      { to: "/history", icon: History, label: "History" },
+      { to: "/activity", icon: Activity, label: "Activity" },
+      { to: "/reminders", icon: BellRing, label: "Reminders" },
+      { to: "/bookmarks", icon: Bookmark, label: "Bookmarks" },
+      { to: "/flags", icon: Flag, label: "Flags" },
+      { to: "/votes", icon: ThumbsUp, label: "Votes" },
+      { to: "/watchers", icon: Eye, label: "Watchers" },
+      { to: "/mentions", icon: AtSign, label: "Mentions" },
+      { to: "/subscriptions", icon: Star, label: "Subscriptions" },
+    ],
+  },
+  {
+    title: "DevOps & QA", icon: Rocket, items: [
+      { to: "/test-plans", icon: ClipboardList, label: "Test plans" },
+      { to: "/test-cases", icon: ClipboardCheck, label: "Test cases" },
+      { to: "/test-runs", icon: PlayCircle, label: "Test runs" },
+      { to: "/environments", icon: Server, label: "Environments" },
+      { to: "/deployments", icon: Rocket, label: "Deployments" },
+      { to: "/feature-flags", icon: ToggleLeft, label: "Feature flags" },
+      { to: "/a-b-tests", icon: FlaskConical, label: "A/B tests" },
+      { to: "/change-log", icon: History, label: "Change log" },
+      { to: "/release-notes", icon: FileText, label: "Release notes" },
+      { to: "/risk-register", icon: AlertTriangle, label: "Risk register" },
+      { to: "/postmortems", icon: FileSearch, label: "Postmortems" },
+      { to: "/runbooks", icon: BookOpen, label: "Runbooks" },
+      { to: "/service-catalog", icon: BookMarked, label: "Service catalog" },
+    ],
+  },
+  {
+    title: "Monitoring", icon: Gauge, items: [
+      { to: "/metrics", icon: Gauge, label: "Metrics" },
+      { to: "/alerts", icon: Siren, label: "Alerts" },
+      { to: "/incidents", icon: AlertTriangle, label: "Incidents" },
+      { to: "/on-call", icon: Phone, label: "On-call" },
+    ],
+  },
+  {
+    title: "Service Desk", icon: Headphones, items: [
+      { to: "/service-desk", icon: Headphones, label: "Service desk" },
+      { to: "/queues", icon: List, label: "Queues" },
+      { to: "/request-types", icon: FormInput, label: "Request types" },
+      { to: "/portal", icon: Layout, label: "Portal" },
+      { to: "/s-l-a", icon: Clock, label: "SLA policies" },
+      { to: "/canned-responses", icon: MailOpen, label: "Canned responses" },
+      { to: "/surveys", icon: FileText, label: "Surveys" },
+      { to: "/knowledge-base", icon: BookOpen, label: "Knowledge base" },
+    ],
+  },
+  {
+    title: "CRM & Sales", icon: Contact, items: [
+      { to: "/customers", icon: Contact, label: "Customers" },
+      { to: "/contacts", icon: Users, label: "Contacts" },
+      { to: "/leads", icon: Target, label: "Leads" },
+      { to: "/deals", icon: Handshake, label: "Deals" },
+      { to: "/opportunities", icon: Lightbulb, label: "Opportunities" },
+      { to: "/quotes", icon: Quote, label: "Quotes" },
+      { to: "/orders", icon: Package, label: "Orders" },
+      { to: "/shipments", icon: Truck, label: "Shipments" },
+    ],
+  },
+  {
+    title: "Finance", icon: DollarSign, items: [
+      { to: "/invoices", icon: FileText, label: "Invoices" },
+      { to: "/invoices-received", icon: FileText, label: "Invoices received" },
+      { to: "/payments", icon: CreditCard, label: "Payments" },
+      { to: "/refunds", icon: Undo, label: "Refunds" },
+      { to: "/expenses", icon: Receipt, label: "Expenses" },
+      { to: "/budgets", icon: Wallet, label: "Budgets" },
+      { to: "/forecasts", icon: TrendingUp, label: "Forecasts" },
+      { to: "/cost-centers", icon: Building2, label: "Cost centers" },
+      { to: "/purchase-orders", icon: ShoppingCart, label: "Purchase orders" },
+      { to: "/billing", icon: DollarSign, label: "Billing" },
+    ],
+  },
+  {
+    title: "Procurement & Mfg", icon: Factory, items: [
+      { to: "/suppliers", icon: Truck, label: "Suppliers" },
+      { to: "/procurement", icon: ShoppingCart, label: "Procurement" },
+      { to: "/inventory", icon: Box, label: "Inventory" },
+      { to: "/hardware", icon: HardDrive, label: "Hardware" },
+      { to: "/software", icon: Monitor, label: "Software" },
+      { to: "/manufacturing", icon: Factory, label: "Manufacturing" },
+      { to: "/bill-of-materials", icon: ClipboardList, label: "Bill of materials" },
+      { to: "/work-orders", icon: Wrench, label: "Work orders" },
+    ],
+  },
+  {
+    title: "Quality & Compliance", icon: ShieldCheck, items: [
+      { to: "/quality", icon: ShieldCheck, label: "Quality" },
+      { to: "/inspections", icon: ClipboardCheck, label: "Inspections" },
+      { to: "/defects", icon: Bug, label: "Defects" },
+      { to: "/non-conformances", icon: XOctagon, label: "Non-conformances" },
+      { to: "/capa", icon: Wrench, label: "CAPA" },
+      { to: "/training", icon: GraduationCap, label: "Training" },
+      { to: "/certifications", icon: Award, label: "Certifications" },
+      { to: "/compliance", icon: ShieldCheck, label: "Compliance" },
+      { to: "/policies", icon: ScrollText, label: "Policies" },
+      { to: "/procedures", icon: ListChecks, label: "Procedures" },
+      { to: "/work-instructions", icon: ClipboardCheck, label: "Work instructions" },
+    ],
+  },
+  {
+    title: "Content & Docs", icon: FileText, items: [
+      { to: "/wiki", icon: BookOpen, label: "Wiki" },
+      { to: "/documents", icon: FileText, label: "Documents" },
+      { to: "/files", icon: FileText, label: "Files" },
+      { to: "/images", icon: FileImage, label: "Images" },
+      { to: "/drawings", icon: PencilLine, label: "Drawings" },
+      { to: "/mind-map", icon: Brain, label: "Mind map" },
+      { to: "/whiteboard", icon: PenTool, label: "Whiteboard" },
+      { to: "/spreadsheets", icon: FileSpreadsheet, label: "Spreadsheets" },
+      { to: "/presentations", icon: Presentation, label: "Presentations" },
+    ],
+  },
+  {
+    title: "Admin & System", icon: Settings, items: [
+      { to: "/admin/audit-log", icon: Shield, label: "Audit log" },
+      { to: "/audit-trail", icon: History, label: "Audit trail" },
+      { to: "/security", icon: ShieldCheck, label: "Security" },
+      { to: "/webhooks", icon: Plug, label: "Webhooks" },
+      { to: "/integrations", icon: Plug, label: "Integrations" },
+      { to: "/migrate", icon: Move, label: "Migrate" },
+      { to: "/analytics", icon: BarChart3, label: "Analytics" },
+      { to: "/settings", icon: Settings, label: "Settings" },
+      { to: "/color-schemes", icon: Palette, label: "Color schemes" },
+      { to: "/email-templates", icon: Mail, label: "Email templates" },
+      { to: "/in-app-messages", icon: MailOpen, label: "In-app messages" },
+      { to: "/macros", icon: Zap, label: "Macros" },
+      { to: "/quick-filters", icon: Filter, label: "Quick filters" },
+      { to: "/reports-builder", icon: BarChart3, label: "Reports builder" },
+      { to: "/reports-export", icon: Download, label: "Reports export" },
+      { to: "/dashboard-builder", icon: Layout, label: "Dashboard builder" },
+      { to: "/notifications-hub", icon: Bell, label: "Notifications hub" },
+      { to: "/forms", icon: FormInput, label: "Forms" },
+      { to: "/assets", icon: Box, label: "Assets" },
+      { to: "/approvals", icon: FileCheck, label: "Approvals" },
+      { to: "/announcements", icon: BellRing, label: "Announcements" },
+      { to: "/time-tracking", icon: Clock, label: "Time tracking" },
+    ],
+  },
+  {
+    title: "Account", icon: User, items: [
+      { to: "/profile", icon: User, label: "Profile" },
+      { to: "/help", icon: HelpCircle, label: "Help" },
+    ],
+  },
+];
+
+function SidebarItem({ to, icon: Icon, label }: NavEntry) {
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
+        `group flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-200 ${
           isActive
-            ? "bg-blue-50 text-blue-700 shadow-sm"
-            : "text-slate-600 hover:translate-x-1 hover:bg-white hover:text-slate-900 hover:shadow-sm"
+            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/20"
+            : "text-slate-600 hover:translate-x-0.5 hover:bg-slate-100 hover:text-slate-900"
         }`
       }
     >
-      <Icon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-      {label}
+      <Icon className={`h-4 w-4 shrink-0 transition-transform duration-200 ${"group-hover:scale-110"}`} />
+      <span className="truncate">{label}</span>
     </NavLink>
   );
 }
 
-function SidebarSection({ title, children }: { title: string; children: React.ReactNode }) {
+function CollapsibleSection({ group, defaultOpen }: { group: NavGroup; defaultOpen: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const GroupIcon = group.icon;
+
   return (
-    <div className="mb-6 animate-fadeIn">
-      <div className="mb-2 px-3 text-xs font-bold uppercase tracking-wider text-slate-400">
-        {title}
+    <div className="mb-1">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="group flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-500 transition-all duration-200 hover:bg-slate-100 hover:text-slate-700"
+      >
+        <GroupIcon className="h-3.5 w-3.5 text-slate-400 transition-transform group-hover:scale-110" />
+        <span className="flex-1 text-left">{group.title}</span>
+        <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+      </button>
+      <div className={`overflow-hidden transition-all duration-300 ${open ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}>
+        <div className="space-y-0.5 pb-2 pl-1">
+          {group.items.map((item) => (
+            <SidebarItem key={item.to} {...item} />
+          ))}
+        </div>
       </div>
-      <div className="space-y-1">{children}</div>
     </div>
   );
 }
@@ -57,209 +304,31 @@ export function SidebarNav() {
   const projectMatch = useMatch("/projects/:projectId/*");
   const projectId = projectMatch?.params.projectId;
 
+  const projectGroup: NavGroup | null = projectId
+    ? {
+        title: "Project", icon: Grid3X3, items: [
+          { to: `/projects/${projectId}/board`, icon: Layout, label: "Board" },
+          { to: `/projects/${projectId}/issues`, icon: List, label: "Issues" },
+          { to: `/projects/${projectId}/backlog`, icon: List, label: "Backlog" },
+          { to: `/projects/${projectId}/sprints`, icon: Clock, label: "Sprints" },
+          { to: `/projects/${projectId}/reports`, icon: BarChart3, label: "Reports" },
+        ],
+      }
+    : null;
+
   return (
-    <nav className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-slate-50 p-3 animate-slideInLeft">
-      <SidebarSection title="TrackForge">
-        <SidebarItem to="/" icon={Home} label="Your work" />
-        <SidebarItem to="/projects" icon={Grid3X3} label="Projects" />
-        <SidebarItem to="/search" icon={Search} label="Search" />
-        <SidebarItem to="/filters" icon={Filter} label="Filters" />
-        <SidebarItem to="/dashboards" icon={Layout} label="Dashboards" />
-        <SidebarItem to="/notifications" icon={Bell} label="Notifications" />
-      </SidebarSection>
-
-      {projectId && (
-        <SidebarSection title="Project">
-          <SidebarItem to={`/projects/${projectId}/board`} icon={Layout} label="Board" />
-          <SidebarItem to={`/projects/${projectId}/issues`} icon={List} label="Issues" />
-          <SidebarItem to={`/projects/${projectId}/backlog`} icon={List} label="Backlog" />
-          <SidebarItem to={`/projects/${projectId}/sprints`} icon={Clock} label="Sprints" />
-          <SidebarItem to={`/projects/${projectId}/reports`} icon={BarChart3} label="Reports" />
-        </SidebarSection>
-      )}
-
-      <SidebarSection title="Admin">
-        <SidebarItem to="/people" icon={Users} label="People" />
-        <SidebarItem to="/admin/audit-log" icon={Shield} label="Audit log" />
-        <SidebarItem to="/settings" icon={Settings} label="Settings" />
-      </SidebarSection>
-
-      <SidebarSection title="Account">
-        <SidebarItem to="/profile" icon={User} label="Profile" />
-        <SidebarItem to="/help" icon={HelpCircle} label="Help" />
-      </SidebarSection>
-      <SidebarSection title="More">
-        <SidebarItem to="/labels" icon={List} label="Labels" />
-        <SidebarItem to="/components" icon={List} label="Components" />
-        <SidebarItem to="/releases" icon={List} label="Releases" />
-        <SidebarItem to="/workflows" icon={List} label="Workflows" />
-        <SidebarItem to="/issue-types" icon={List} label="Issue types" />
-        <SidebarItem to="/permissions" icon={List} label="Permissions" />
-        <SidebarItem to="/billing" icon={List} label="Billing" />
-        <SidebarItem to="/integrations" icon={List} label="Integrations" />
-        <SidebarItem to="/service-desk" icon={List} label="Service desk" />
-        <SidebarItem to="/portfolio" icon={List} label="Portfolio" />
-        <SidebarItem to="/roadmap" icon={List} label="Roadmap" />
-        <SidebarItem to="/epics" icon={List} label="Epics" />
-        <SidebarItem to="/versions" icon={List} label="Versions" />
-        <SidebarItem to="/time-tracking" icon={List} label="Time tracking" />
-        <SidebarItem to="/s-l-a" icon={List} label="SLA policies" />
-        <SidebarItem to="/custom-fields" icon={List} label="Custom fields" />
-        <SidebarItem to="/automation" icon={List} label="Automation" />
-        <SidebarItem to="/import" icon={List} label="Import" />
-        <SidebarItem to="/export" icon={List} label="Export" />
-        <SidebarItem to="/archive" icon={List} label="Archive" />
-      </SidebarSection>
-      <SidebarSection title="More 2">
-        <SidebarItem to="/teams" icon={List} label="Teams" />
-        <SidebarItem to="/goals" icon={List} label="Goals" />
-        <SidebarItem to="/forms" icon={List} label="Forms" />
-        <SidebarItem to="/assets" icon={List} label="Assets" />
-        <SidebarItem to="/calendar" icon={List} label="Calendar" />
-        <SidebarItem to="/timeline" icon={List} label="Timeline" />
-        <SidebarItem to="/dependencies" icon={List} label="Dependencies" />
-        <SidebarItem to="/approvals" icon={List} label="Approvals" />
-        <SidebarItem to="/announcements" icon={List} label="Announcements" />
-        <SidebarItem to="/templates" icon={List} label="Templates" />
-        <SidebarItem to="/reports-export" icon={List} label="Reports export" />
-        <SidebarItem to="/rule-engine" icon={List} label="Rule engine" />
-        <SidebarItem to="/roles" icon={List} label="Roles" />
-        <SidebarItem to="/groups" icon={List} label="Groups" />
-        <SidebarItem to="/invitations" icon={List} label="Invitations" />
-        <SidebarItem to="/security" icon={List} label="Security" />
-        <SidebarItem to="/webhooks" icon={List} label="Webhooks" />
-        <SidebarItem to="/audit-trail" icon={List} label="Audit trail" />
-        <SidebarItem to="/migrate" icon={List} label="Migrate" />
-        <SidebarItem to="/analytics" icon={List} label="Analytics" />
-      </SidebarSection>
-      <SidebarSection title="More 3">
-        <SidebarItem to="/boards" icon={List} label="Boards" />
-        <SidebarItem to="/queues" icon={List} label="Queues" />
-        <SidebarItem to="/canned-responses" icon={List} label="Canned responses" />
-        <SidebarItem to="/request-types" icon={List} label="Request types" />
-        <SidebarItem to="/portal" icon={List} label="Portal" />
-        <SidebarItem to="/surveys" icon={List} label="Surveys" />
-        <SidebarItem to="/knowledge-base" icon={List} label="Knowledge base" />
-        <SidebarItem to="/reports-builder" icon={List} label="Reports builder" />
-        <SidebarItem to="/dashboard-builder" icon={List} label="Dashboard builder" />
-        <SidebarItem to="/schemes" icon={List} label="Schemes" />
-        <SidebarItem to="/field-configs" icon={List} label="Field configs" />
-        <SidebarItem to="/screens" icon={List} label="Screens" />
-        <SidebarItem to="/notifications-hub" icon={List} label="Notifications hub" />
-        <SidebarItem to="/subscriptions" icon={List} label="Subscriptions" />
-        <SidebarItem to="/mentions" icon={List} label="Mentions" />
-        <SidebarItem to="/watchers" icon={List} label="Watchers" />
-        <SidebarItem to="/votes" icon={List} label="Votes" />
-        <SidebarItem to="/flags" icon={List} label="Flags" />
-        <SidebarItem to="/bookmarks" icon={List} label="Bookmarks" />
-        <SidebarItem to="/trash" icon={List} label="Trash" />
-        <SidebarItem to="/recycle-bin" icon={List} label="Recycle bin" />
-        <SidebarItem to="/copy" icon={List} label="Copy" />
-        <SidebarItem to="/move" icon={List} label="Move" />
-        <SidebarItem to="/bulk-edit" icon={List} label="Bulk edit" />
-        <SidebarItem to="/link" icon={List} label="Link" />
-        <SidebarItem to="/clone" icon={List} label="Clone" />
-        <SidebarItem to="/history" icon={List} label="History" />
-        <SidebarItem to="/activity" icon={List} label="Activity" />
-        <SidebarItem to="/drafts" icon={List} label="Drafts" />
-        <SidebarItem to="/reminders" icon={List} label="Reminders" />
-      </SidebarSection>
-      <SidebarSection title="More 4">
-        <SidebarItem to="/gantt" icon={List} label="Gantt" />
-        <SidebarItem to="/time-sheets" icon={List} label="Time sheets" />
-        <SidebarItem to="/resource-planning" icon={List} label="Resource planning" />
-        <SidebarItem to="/risk-register" icon={List} label="Risk register" />
-        <SidebarItem to="/change-log" icon={List} label="Change log" />
-        <SidebarItem to="/release-notes" icon={List} label="Release notes" />
-        <SidebarItem to="/product-requirements" icon={List} label="Product requirements" />
-        <SidebarItem to="/test-plans" icon={List} label="Test plans" />
-        <SidebarItem to="/test-cases" icon={List} label="Test cases" />
-        <SidebarItem to="/test-runs" icon={List} label="Test runs" />
-        <SidebarItem to="/environments" icon={List} label="Environments" />
-        <SidebarItem to="/deployments" icon={List} label="Deployments" />
-        <SidebarItem to="/feature-flags" icon={List} label="Feature flags" />
-        <SidebarItem to="/a-b-tests" icon={List} label="A/B tests" />
-        <SidebarItem to="/metrics" icon={List} label="Metrics" />
-        <SidebarItem to="/alerts" icon={List} label="Alerts" />
-        <SidebarItem to="/incidents" icon={List} label="Incidents" />
-        <SidebarItem to="/on-call" icon={List} label="On-call" />
-        <SidebarItem to="/postmortems" icon={List} label="Postmortems" />
-        <SidebarItem to="/service-catalog" icon={List} label="Service catalog" />
-        <SidebarItem to="/runbooks" icon={List} label="Runbooks" />
-        <SidebarItem to="/macros" icon={List} label="Macros" />
-        <SidebarItem to="/quick-filters" icon={List} label="Quick filters" />
-        <SidebarItem to="/color-schemes" icon={List} label="Color schemes" />
-        <SidebarItem to="/email-templates" icon={List} label="Email templates" />
-        <SidebarItem to="/in-app-messages" icon={List} label="In-app messages" />
-        <SidebarItem to="/tasks" icon={List} label="Tasks" />
-        <SidebarItem to="/subtasks" icon={List} label="Subtasks" />
-        <SidebarItem to="/checklists" icon={List} label="Checklists" />
-        <SidebarItem to="/task-dependencies" icon={List} label="Task dependencies" />
-      </SidebarSection>
-      <SidebarSection title="More 5">
-        <SidebarItem to="/wiki" icon={List} label="Wiki" />
-        <SidebarItem to="/documents" icon={List} label="Documents" />
-        <SidebarItem to="/files" icon={List} label="Files" />
-        <SidebarItem to="/images" icon={List} label="Images" />
-        <SidebarItem to="/drawings" icon={List} label="Drawings" />
-        <SidebarItem to="/mind-map" icon={List} label="Mind map" />
-        <SidebarItem to="/whiteboard" icon={List} label="Whiteboard" />
-        <SidebarItem to="/spreadsheets" icon={List} label="Spreadsheets" />
-        <SidebarItem to="/presentations" icon={List} label="Presentations" />
-        <SidebarItem to="/meeting-notes" icon={List} label="Meeting notes" />
-        <SidebarItem to="/retrospectives" icon={List} label="Retrospectives" />
-        <SidebarItem to="/standups" icon={List} label="Standups" />
-        <SidebarItem to="/one-on-one" icon={List} label="1:1s" />
-        <SidebarItem to="/performance-review" icon={List} label="Performance review" />
-        <SidebarItem to="/career-path" icon={List} label="Career path" />
-        <SidebarItem to="/skills-matrix" icon={List} label="Skills matrix" />
-        <SidebarItem to="/org-chart" icon={List} label="Org chart" />
-        <SidebarItem to="/job-descriptions" icon={List} label="Job descriptions" />
-        <SidebarItem to="/hiring" icon={List} label="Hiring" />
-        <SidebarItem to="/onboarding" icon={List} label="Onboarding" />
-        <SidebarItem to="/offboarding" icon={List} label="Offboarding" />
-        <SidebarItem to="/vacation" icon={List} label="Vacation" />
-        <SidebarItem to="/expenses" icon={List} label="Expenses" />
-        <SidebarItem to="/invoices" icon={List} label="Invoices" />
-        <SidebarItem to="/contracts" icon={List} label="Contracts" />
-        <SidebarItem to="/vendors" icon={List} label="Vendors" />
-        <SidebarItem to="/procurement" icon={List} label="Procurement" />
-        <SidebarItem to="/inventory" icon={List} label="Inventory" />
-        <SidebarItem to="/hardware" icon={List} label="Hardware" />
-        <SidebarItem to="/software" icon={List} label="Software" />
-      </SidebarSection>
-      <SidebarSection title="More 6">
-        <SidebarItem to="/customers" icon={List} label="Customers" />
-        <SidebarItem to="/contacts" icon={List} label="Contacts" />
-        <SidebarItem to="/leads" icon={List} label="Leads" />
-        <SidebarItem to="/deals" icon={List} label="Deals" />
-        <SidebarItem to="/opportunities" icon={List} label="Opportunities" />
-        <SidebarItem to="/quotes" icon={List} label="Quotes" />
-        <SidebarItem to="/orders" icon={List} label="Orders" />
-        <SidebarItem to="/shipments" icon={List} label="Shipments" />
-        <SidebarItem to="/invoices-received" icon={List} label="Invoices received" />
-        <SidebarItem to="/payments" icon={List} label="Payments" />
-        <SidebarItem to="/refunds" icon={List} label="Refunds" />
-        <SidebarItem to="/budgets" icon={List} label="Budgets" />
-        <SidebarItem to="/forecasts" icon={List} label="Forecasts" />
-        <SidebarItem to="/cost-centers" icon={List} label="Cost centers" />
-        <SidebarItem to="/purchase-orders" icon={List} label="Purchase orders" />
-        <SidebarItem to="/suppliers" icon={List} label="Suppliers" />
-        <SidebarItem to="/manufacturing" icon={List} label="Manufacturing" />
-        <SidebarItem to="/bill-of-materials" icon={List} label="Bill of materials" />
-        <SidebarItem to="/work-orders" icon={List} label="Work orders" />
-        <SidebarItem to="/quality" icon={List} label="Quality" />
-        <SidebarItem to="/inspections" icon={List} label="Inspections" />
-        <SidebarItem to="/defects" icon={List} label="Defects" />
-        <SidebarItem to="/non-conformances" icon={List} label="Non-conformances" />
-        <SidebarItem to="/capa" icon={List} label="CAPA" />
-        <SidebarItem to="/training" icon={List} label="Training" />
-        <SidebarItem to="/certifications" icon={List} label="Certifications" />
-        <SidebarItem to="/compliance" icon={List} label="Compliance" />
-        <SidebarItem to="/policies" icon={List} label="Policies" />
-        <SidebarItem to="/procedures" icon={List} label="Procedures" />
-        <SidebarItem to="/work-instructions" icon={List} label="Work instructions" />
-      </SidebarSection>
+    <nav className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-gradient-to-b from-slate-50 to-slate-100/50">
+      <div className="flex-1 overflow-y-auto px-3 py-4 sidebar-scroll">
+        {projectGroup && (
+          <div className="mb-3 rounded-xl border border-blue-200 bg-blue-50/50 p-2">
+            <CollapsibleSection group={projectGroup} defaultOpen={true} />
+          </div>
+        )}
+        {groups.map((g, i) => (
+          <CollapsibleSection key={g.title} group={g} defaultOpen={i < 2} />
+        ))}
+      </div>
     </nav>
   );
 }
+

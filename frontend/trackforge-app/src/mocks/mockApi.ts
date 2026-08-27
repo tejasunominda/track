@@ -222,6 +222,21 @@ export async function mockFetch(path: string, init?: RequestInit): Promise<any> 
   }
 
   if (clean === "/projects") {
+    if (method === "POST") {
+      const body = init?.body ? JSON.parse(init.body as string) : {};
+      const newProject: ProjectSummary = {
+        id: id(),
+        name: body.name ?? "Untitled",
+        projectKey: (body.projectKey ?? "NEW").toUpperCase(),
+        description: body.description ?? null,
+        template: body.template ?? "SCRUM",
+        status: "ACTIVE",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      projects.push(newProject);
+      return newProject;
+    }
     return projects;
   }
 
