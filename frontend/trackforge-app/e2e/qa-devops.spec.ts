@@ -15,10 +15,10 @@ test("test cases page passes", async ({ page }) => {
   await page.goto("/test-cases");
   await expect(page.getByRole("heading", { name: "Test cases" })).toBeVisible({ timeout: 15000 });
   await page.getByRole("button", { name: "New case" }).click();
-  await page.getByPlaceholder("Test case").fill("Login");
+  await page.getByPlaceholder("Test case").first().fill("Login");
   await page.getByRole("button", { name: "Create" }).last().click();
   await expect(page.getByText("Test case added")).toBeVisible({ timeout: 5000 });
-  await page.getByRole("button", { name: "Pass" }).last().click();
+  await page.getByRole("button", { name: "Mark Pass" }).last().click();
   await expect(page.getByText("Test case passed")).toBeVisible({ timeout: 5000 });
 });
 

@@ -4,7 +4,7 @@ test("offboarding page completes", async ({ page }) => {
   await page.goto("/offboarding");
   await expect(page.getByRole("heading", { name: "Offboarding" })).toBeVisible({ timeout: 15000 });
   await page.getByRole("button", { name: "New task" }).click();
-  await page.getByPlaceholder("Task").fill("Return badge");
+  await page.getByPlaceholder("Task").first().fill("Return badge");
   await page.getByRole("button", { name: "Create" }).last().click();
   await expect(page.getByText("Task created")).toBeVisible({ timeout: 5000 });
   await page.getByRole("button", { name: "Done" }).last().click();

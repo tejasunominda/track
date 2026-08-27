@@ -45,7 +45,7 @@ test("postmortems page publishes", async ({ page }) => {
   await page.goto("/postmortems");
   await expect(page.getByRole("heading", { name: "Postmortems" })).toBeVisible({ timeout: 15000 });
   await page.getByRole("button", { name: "New" }).first().click();
-  await page.getByPlaceholder("Postmortem").fill("DB outage");
+  await page.getByPlaceholder("Postmortem").first().fill("DB outage");
   await page.getByRole("button", { name: "Create" }).last().click();
   await expect(page.getByText("Postmortem created")).toBeVisible({ timeout: 5000 });
   await page.getByRole("button", { name: "Publish" }).last().click();
