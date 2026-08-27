@@ -46,5 +46,5 @@ test("metrics page creates", async ({ page }) => {
 test("activity page loads", async ({ page }) => {
   await page.goto("/activity");
   await expect(page.getByRole("heading", { name: "Activity" })).toBeVisible({ timeout: 15000 });
-  await expect(page.getByText("Alice")).toBeVisible();
+  await expect(page.getByText("Alice").first()).toBeVisible();
 });

@@ -28,7 +28,7 @@ test("test plans page creates", async ({ page }) => {
   await page.getByRole("button", { name: "New plan" }).click();
   await page.getByPlaceholder("Plan name").fill("Release");
   await page.getByRole("button", { name: "Create" }).last().click();
-  await expect(page.getByText("Test plan added")).toBeVisible({ timeout: 5000 });
+  await expect(page.getByText("Test plan created")).toBeVisible({ timeout: 5000 });
 });
 
 test("deployments page promotes", async ({ page }) => {
