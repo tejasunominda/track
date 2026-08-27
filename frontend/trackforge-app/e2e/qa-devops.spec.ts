@@ -46,7 +46,7 @@ test("environments page toggles", async ({ page }) => {
   await page.goto("/environments");
   await expect(page.getByRole("heading", { name: "Environments" })).toBeVisible({ timeout: 15000 });
   await page.getByRole("button", { name: "New env" }).click();
-  await page.getByPlaceholder("Environment").fill("QA");
+  await page.getByPlaceholder("Environment").first().fill("QA");
   await page.getByRole("button", { name: "Create" }).last().click();
   await expect(page.getByText("Environment added")).toBeVisible({ timeout: 5000 });
   await page.getByRole("button", { name: "Toggle" }).last().click();
